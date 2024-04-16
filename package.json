@@ -1,4 +1,5 @@
 {
+  "homepage": "tomgb.github.io/Stage",
   "name": "contentful-react-starter",
   "version": "0.1.0",
   "dependencies": {
@@ -6,6 +7,7 @@
     "contentful": "^9.2.19",
     "contentful-import": "^8.5.23",
     "dotenv": "^16.0.3",
+    "gh-pages": "^6.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "swr": "^2.0.1"
@@ -13,7 +15,9 @@
   "scripts": {
     "dev": "parcel ./public/index.html --open",
     "build": "parcel build ./public/index.html",
-    "setup": "node ./contentful/setup.js"
+    "setup": "node ./contentful/setup.js",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "browserslist": [
     "last 1 chrome version",
@@ -24,6 +28,5 @@
     "buffer": "^5.5.0",
     "parcel": "^2.8.3",
     "process": "^0.11.10"
-  },
-  "homepage": "https://tomgb.github.io/Stage/"
+  }
 }
