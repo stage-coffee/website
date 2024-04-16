@@ -27158,8 +27158,8 @@ var _content = require("./Content");
 var _contentDefault = parcelHelpers.interopDefault(_content);
 var _s = $RefreshSig$();
 const client = (0, _contentful.createClient)({
-    space: undefined,
-    accessToken: undefined
+    space: "cccc6mdhxqr5",
+    accessToken: "xFcGR3n0epqOnPGvLNsSjIrJDufUGMFGxl8B-dSWQPA"
 });
 const fetcher = async ()=>{
     const entryItems = await client.getEntries({

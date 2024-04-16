@@ -17,7 +17,7 @@
     "build": "parcel build ./public/index.html",
     "setup": "node ./contentful/setup.js",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d dist"
   },
   "browserslist": [
     "last 1 chrome version",
