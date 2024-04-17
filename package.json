@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "dependencies": {
     "@contentful/f36-spinner": "^4.25.1",
-    "contentful": "^9.2.19",
+    "@contentful/rich-text-react-renderer": "^15.19.6",
+    "contentful": "^10.8.8",
     "contentful-import": "^8.5.23",
     "dotenv": "^16.0.3",
     "gh-pages": "^6.1.1",
