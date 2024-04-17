@@ -20,7 +20,6 @@ const fetcher = async () => {
   const entries = websiteSections.map((entry) => {
     const { fields } = entry
 
-    console.log({ fields })
     return {
       title: fields.title,
       image: fields.image.fields.file.url,
@@ -47,9 +46,9 @@ function App() {
   return (
     <main>
       <Banner />
-      {entries.map(({ image, alt, title, text, css }) => {
+      {entries.map(({ image, alt, title, text, css }, index) => {
         return (
-          <section className="river center-vert" style={{ ...css }}>
+          <section key={index} className="river center-vert" style={{ ...css }}>
             <img src={image} alt={alt} aria-hidden="true" />
             <article>
               <h3>{title}</h3>
