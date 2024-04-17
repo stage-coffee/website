@@ -1,5 +1,5 @@
 {
-  "homepage": "tomgb.github.io/Stage",
+  "homepage": "https://tomgb.github.io/Stage",
   "name": "contentful-react-starter",
   "version": "0.1.0",
   "dependencies": {
@@ -16,7 +16,6 @@
     "dev": "parcel ./public/index.html --open",
     "build": "parcel build ./public/index.html",
     "setup": "node ./contentful/setup.js",
-    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "browserslist": [
