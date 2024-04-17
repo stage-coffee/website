@@ -27175,7 +27175,8 @@ const fetcher = async ()=>{
             title: fields.title,
             image: fields.image.fields.file.url,
             alt: fields.image.fields.title,
-            text: fields.text
+            text: fields.text,
+            css: fields.css
         };
     });
     return {
@@ -27191,7 +27192,7 @@ function App() {
             children: "failed to load "
         }, void 0, false, {
             fileName: "src/App.js",
-            lineNumber: 40,
+            lineNumber: 41,
             columnNumber: 12
         }, this);
     }
@@ -27199,7 +27200,7 @@ function App() {
         size: "large"
     }, void 0, false, {
         fileName: "src/App.js",
-        lineNumber: 42,
+        lineNumber: 43,
         columnNumber: 21
     }, this);
     const { entries  } = data;
@@ -27207,12 +27208,15 @@ function App() {
         children: [
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _bannerDefault.default), {}, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 48,
+                lineNumber: 49,
                 columnNumber: 7
             }, this),
-            entries.map(({ image , alt , title , text  })=>{
+            entries.map(({ image , alt , title , text , css  })=>{
                 return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("section", {
                     className: "river center-vert",
+                    style: {
+                        ...css
+                    },
                     children: [
                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("img", {
                             src: image,
@@ -27220,7 +27224,7 @@ function App() {
                             "aria-hidden": "true"
                         }, void 0, false, {
                             fileName: "src/App.js",
-                            lineNumber: 52,
+                            lineNumber: 53,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("article", {
@@ -27229,32 +27233,32 @@ function App() {
                                     children: title
                                 }, void 0, false, {
                                     fileName: "src/App.js",
-                                    lineNumber: 54,
+                                    lineNumber: 55,
                                     columnNumber: 15
                                 }, this),
                                 (0, _richTextReactRenderer.documentToReactComponents)(text)
                             ]
                         }, void 0, true, {
                             fileName: "src/App.js",
-                            lineNumber: 53,
+                            lineNumber: 54,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "src/App.js",
-                    lineNumber: 51,
+                    lineNumber: 52,
                     columnNumber: 11
                 }, this);
             }),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _footerDefault.default), {}, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 60,
+                lineNumber: 61,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "src/App.js",
-        lineNumber: 47,
+        lineNumber: 48,
         columnNumber: 5
     }, this);
 }
