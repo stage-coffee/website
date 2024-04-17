@@ -17,6 +17,7 @@
     "dev": "parcel ./public/index.html --open",
     "build": "parcel build ./public/index.html --public-url './'",
     "setup": "node ./contentful/setup.js",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "browserslist": [
