@@ -149,16 +149,20 @@ small {
   text-align: center;
 }
 
-.eventTimesTable, .openingTimesTable {
+.river table {
   display: inline-block;
 }
 
-.eventTimesTable td:not(:last-child), .openingTimesTable td:not(:last-child) {
+.river table p {
+  margin: 0;
+}
+
+.river table td:not(:last-child) {
   text-align: left;
   padding: 0 40px 0 0;
 }
 
-.eventTimesTable td:last-child, .openingTimesTable td:last-child {
+.river table td:last-child {
   text-align: right;
 }
 
