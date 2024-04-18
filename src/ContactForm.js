@@ -33,7 +33,7 @@ const ContactForm = ({ contactFormText }) => {
   }
 
   return (
-    <section className="contain">
+    <section className="contain" style={{ paddingBottom: '3rem' }}>
       <article>
         <h3>Contact</h3>
         {documentToReactComponents(contactFormText)}

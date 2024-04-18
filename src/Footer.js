@@ -4,7 +4,6 @@ const Footer = ({ contactFormText }) => (
   <footer
     style={{
       backgroundColor: 'rgb(255, 207, 98)',
-      paddingBottom: '3rem',
       paddingTop: '1rem',
       marginTop: '1rem',
     }}
@@ -39,6 +38,26 @@ const Footer = ({ contactFormText }) => (
       ></iframe>
     </section>
     <ContactForm contactFormText={contactFormText} />
+    <div style={{ width: '100%', backgroundColor: '#3e7692' }}>
+      <div
+        style={{
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          maxWidth: '1280px',
+          padding: '0 1rem',
+        }}
+      >
+        <p
+          style={{
+            display: 'inline-block',
+            color: '#fdfdfd',
+          }}
+        >
+          © 2024, Stage Espresso and Brewbar | 41 Great George St, Leeds,
+          Yorkshire, LS1 3BB
+        </p>
+      </div>
+    </div>
   </footer>
 )
 
