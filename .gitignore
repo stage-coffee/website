@@ -10,6 +10,7 @@
 
 # production
 /build
+/devBuild
 # /dist
 
 # misc
