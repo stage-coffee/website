@@ -145,6 +145,9 @@
 }
 
 @media screen and (min-width: 40em) {
+  .contain article {
+    width: 50%;
+  }
   .river:nth-child(even) {
     flex-direction: row-reverse;
   }

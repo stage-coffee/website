@@ -34,18 +34,26 @@ const ContactForm = ({ contactFormText }) => {
 
   return (
     <section className="contain">
-      <article></article>
       <article>
         <h3>Contact</h3>
         {documentToReactComponents(contactFormText)}
         <form onSubmit={handleSubmit} className="contact-form">
           <label>
             Your email:
-            <input type="email" name="email" ref={emailRef} />
+            <input
+              type="email"
+              name="email"
+              ref={emailRef}
+              style={{ width: '100%' }}
+            />
           </label>
           <label>
             Your message:
-            <textarea name="message" ref={messageRef}></textarea>
+            <textarea
+              name="message"
+              ref={messageRef}
+              style={{ width: '100%' }}
+            />
           </label>
           <button type="submit">Send</button>
         </form>

@@ -261,6 +261,10 @@ small {
 }
 
 @media screen and (min-width: 40em) {
+  .contain article {
+    width: 50%;
+  }
+
   .river:nth-child(2n) {
     flex-direction: row-reverse;
   }
