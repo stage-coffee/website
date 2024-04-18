@@ -36786,33 +36786,25 @@ const room = new URL(require("a802b8f1caa0973e"));
 const roomDown = new URL(require("707f69fef2033fba"));
 const changeBg = (0, _styledComponents.keyframes)`
   0%,100%  {
-    background-image: url(${room.href});
     background-position: center;
-    // filter: blur(0px)
   }
 
   25% {
     background-position: bottom right;
-    // filter: blur(5px)
   }
 
   50% {
-    background-image: url(${roomDown.href});
-        background-position: center;
-
-    // filter: blur(0px)
+    background-position: center;
   }
 
   75% {
-        background-position: top left;
-
-    // filter: blur(5px)
+    background-position: top left;
   }
 `;
 const BackgroundImageDiv = (0, _styledComponentsDefault.default).div`
   background-image: url(${room});
   animation-name: ${changeBg};
-  animation-duration: 40s;
+  animation-duration: 20s;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 `;
@@ -36854,17 +36846,17 @@ const Banner = ()=>{
                 }
             }, void 0, false, {
                 fileName: "src/Banner.js",
-                lineNumber: 69,
+                lineNumber: 61,
                 columnNumber: 9
             }, undefined)
         }, void 0, false, {
             fileName: "src/Banner.js",
-            lineNumber: 68,
+            lineNumber: 60,
             columnNumber: 7
         }, undefined)
     }, void 0, false, {
         fileName: "src/Banner.js",
-        lineNumber: 67,
+        lineNumber: 59,
         columnNumber: 5
     }, undefined);
 };
