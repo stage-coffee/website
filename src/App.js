@@ -16,6 +16,7 @@ const fetcher = async () => {
   })
 
   const websiteSections = websiteOrder.items[0].fields.contentOrder
+  const contactFormText = websiteOrder.items[0].fields.contactFormText
 
   const entries = websiteSections.map((entry) => {
     const { fields } = entry
@@ -29,7 +30,7 @@ const fetcher = async () => {
     }
   })
 
-  return { entries }
+  return { entries, contactFormText }
 }
 
 function App() {
@@ -41,7 +42,7 @@ function App() {
   }
   if (!data) return <Spinner size="large" />
 
-  const { entries } = data
+  const { entries, contactFormText } = data
 
   return (
     <main>
@@ -57,7 +58,7 @@ function App() {
           </section>
         )
       })}
-      <Footer />
+      <Footer contactFormText={contactFormText} />
     </main>
   )
 }

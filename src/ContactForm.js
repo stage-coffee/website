@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react'
 import axios from 'axios'
+import { documentToReactComponents } from '@contentful/rich-text-react-renderer'
 
-const ContactForm = () => {
+const ContactForm = ({ contactFormText }) => {
   const [contactFormState, setContactFormState] = useState('')
   const emailRef = useRef(null)
   const messageRef = useRef(null)
@@ -36,10 +37,7 @@ const ContactForm = () => {
       <article></article>
       <article>
         <h3>Contact</h3>
-        <p>
-          Drop us a message if you have any questions or would like to enquire
-          about hiring Stage for an event.
-        </p>
+        {documentToReactComponents(contactFormText)}
         <form onSubmit={handleSubmit} className="contact-form">
           <label>
             Your email:

@@ -1,6 +1,6 @@
 import ContactForm from './ContactForm'
 
-const Footer = () => (
+const Footer = ({ contactFormText }) => (
   <footer
     style={{
       backgroundColor: 'rgb(255, 207, 98)',
@@ -38,7 +38,7 @@ const Footer = () => (
         referrerPolicy="no-referrer-when-downgrade"
       ></iframe>
     </section>
-    <ContactForm />
+    <ContactForm contactFormText={contactFormText} />
   </footer>
 )
 
