@@ -36804,7 +36804,7 @@ const changeBg = (0, _styledComponents.keyframes)`
 const BackgroundImageDiv = (0, _styledComponentsDefault.default).div`
   background-image: url(${room});
   animation-name: ${changeBg};
-  animation-duration: 20s;
+  animation-duration: 40s;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 `;
