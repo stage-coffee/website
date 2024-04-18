@@ -37014,7 +37014,6 @@ var _contactFormDefault = parcelHelpers.interopDefault(_contactForm);
 const Footer = ({ contactFormText  })=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("footer", {
         style: {
             backgroundColor: "rgb(255, 207, 98)",
-            paddingBottom: "3rem",
             paddingTop: "1rem",
             marginTop: "1rem"
         },
@@ -37040,7 +37039,7 @@ const Footer = ({ contactFormText  })=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)(
                         }
                     }, void 0, false, {
                         fileName: "src/Footer.js",
-                        lineNumber: 13,
+                        lineNumber: 12,
                         columnNumber: 7
                     }, undefined),
                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("iframe", {
@@ -37056,17 +37055,50 @@ const Footer = ({ contactFormText  })=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)(
                         referrerPolicy: "no-referrer-when-downgrade"
                     }, void 0, false, {
                         fileName: "src/Footer.js",
-                        lineNumber: 31,
+                        lineNumber: 30,
                         columnNumber: 7
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/Footer.js",
-                lineNumber: 12,
+                lineNumber: 11,
                 columnNumber: 5
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _contactFormDefault.default), {
                 contactFormText: contactFormText
+            }, void 0, false, {
+                fileName: "src/Footer.js",
+                lineNumber: 40,
+                columnNumber: 5
+            }, undefined),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                style: {
+                    width: "100%",
+                    backgroundColor: "#3e7692"
+                },
+                children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                    style: {
+                        marginLeft: "auto",
+                        marginRight: "auto",
+                        maxWidth: "1280px",
+                        padding: "0 1rem"
+                    },
+                    children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                        style: {
+                            display: "inline-block",
+                            color: "#fdfdfd"
+                        },
+                        children: "\xa9 2024, Stage Espresso and Brewbar | 41 Great George St, Leeds, Yorkshire, LS1 3BB"
+                    }, void 0, false, {
+                        fileName: "src/Footer.js",
+                        lineNumber: 50,
+                        columnNumber: 9
+                    }, undefined)
+                }, void 0, false, {
+                    fileName: "src/Footer.js",
+                    lineNumber: 42,
+                    columnNumber: 7
+                }, undefined)
             }, void 0, false, {
                 fileName: "src/Footer.js",
                 lineNumber: 41,
@@ -37131,6 +37163,9 @@ const ContactForm = ({ contactFormText  })=>{
     };
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("section", {
         className: "contain",
+        style: {
+            paddingBottom: "3rem"
+        },
         children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("article", {
             children: [
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
