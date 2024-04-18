@@ -27166,6 +27166,7 @@ const fetcher = async ()=>{
         content_type: "websiteOrder"
     });
     const websiteSections = websiteOrder.items[0].fields.contentOrder;
+    const contactFormText = websiteOrder.items[0].fields.contactFormText;
     const entries = websiteSections.map((entry)=>{
         const { fields  } = entry;
         return {
@@ -27177,7 +27178,8 @@ const fetcher = async ()=>{
         };
     });
     return {
-        entries
+        entries,
+        contactFormText
     };
 };
 function App() {
@@ -27189,7 +27191,7 @@ function App() {
             children: "failed to load "
         }, void 0, false, {
             fileName: "src/App.js",
-            lineNumber: 40,
+            lineNumber: 41,
             columnNumber: 12
         }, this);
     }
@@ -27197,15 +27199,15 @@ function App() {
         size: "large"
     }, void 0, false, {
         fileName: "src/App.js",
-        lineNumber: 42,
+        lineNumber: 43,
         columnNumber: 21
     }, this);
-    const { entries  } = data;
+    const { entries , contactFormText  } = data;
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("main", {
         children: [
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _bannerDefault.default), {}, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 48,
+                lineNumber: 49,
                 columnNumber: 7
             }, this),
             entries.map(({ image , alt , title , text , css  }, index)=>{
@@ -27221,7 +27223,7 @@ function App() {
                             "aria-hidden": "true"
                         }, void 0, false, {
                             fileName: "src/App.js",
-                            lineNumber: 52,
+                            lineNumber: 53,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("article", {
@@ -27230,32 +27232,34 @@ function App() {
                                     children: title
                                 }, void 0, false, {
                                     fileName: "src/App.js",
-                                    lineNumber: 54,
+                                    lineNumber: 55,
                                     columnNumber: 15
                                 }, this),
                                 (0, _richTextReactRenderer.documentToReactComponents)(text)
                             ]
                         }, void 0, true, {
                             fileName: "src/App.js",
-                            lineNumber: 53,
+                            lineNumber: 54,
                             columnNumber: 13
                         }, this)
                     ]
                 }, index, true, {
                     fileName: "src/App.js",
-                    lineNumber: 51,
+                    lineNumber: 52,
                     columnNumber: 11
                 }, this);
             }),
-            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _footerDefault.default), {}, void 0, false, {
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _footerDefault.default), {
+                contactFormText: contactFormText
+            }, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 60,
+                lineNumber: 61,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "src/App.js",
-        lineNumber: 47,
+        lineNumber: 48,
         columnNumber: 5
     }, this);
 }
@@ -31046,8 +31050,8 @@ function css() {
 exports.default = css;
 
 },{"@emotion/serialize":"b3amS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"wEzsB":[function(require,module,exports) {
-var global = arguments[3];
 var process = require("2ee4cabfd59adac");
+var global = arguments[3];
 var Buffer = require("f78a3758efb94224").Buffer;
 !function(e, t) {
     module.exports = t();
@@ -37007,7 +37011,7 @@ parcelHelpers.defineInteropFlag(exports);
 var _jsxDevRuntime = require("react/jsx-dev-runtime");
 var _contactForm = require("./ContactForm");
 var _contactFormDefault = parcelHelpers.interopDefault(_contactForm);
-const Footer = ()=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("footer", {
+const Footer = ({ contactFormText  })=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("footer", {
         style: {
             backgroundColor: "rgb(255, 207, 98)",
             paddingBottom: "3rem",
@@ -37061,7 +37065,9 @@ const Footer = ()=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("footer", {
                 lineNumber: 12,
                 columnNumber: 5
             }, undefined),
-            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _contactFormDefault.default), {}, void 0, false, {
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _contactFormDefault.default), {
+                contactFormText: contactFormText
+            }, void 0, false, {
                 fileName: "src/Footer.js",
                 lineNumber: 41,
                 columnNumber: 5
@@ -37096,8 +37102,9 @@ var _react = require("react");
 var _reactDefault = parcelHelpers.interopDefault(_react);
 var _axios = require("axios");
 var _axiosDefault = parcelHelpers.interopDefault(_axios);
+var _richTextReactRenderer = require("@contentful/rich-text-react-renderer");
 var _s = $RefreshSig$();
-const ContactForm = ()=>{
+const ContactForm = ({ contactFormText  })=>{
     _s();
     const [contactFormState, setContactFormState] = (0, _react.useState)("");
     const emailRef = (0, _react.useRef)(null);
@@ -37127,7 +37134,7 @@ const ContactForm = ()=>{
         children: [
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("article", {}, void 0, false, {
                 fileName: "src/ContactForm.js",
-                lineNumber: 36,
+                lineNumber: 37,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("article", {
@@ -37136,16 +37143,10 @@ const ContactForm = ()=>{
                         children: "Contact"
                     }, void 0, false, {
                         fileName: "src/ContactForm.js",
-                        lineNumber: 38,
-                        columnNumber: 9
-                    }, undefined),
-                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
-                        children: "Drop us a message if you have any questions or would like to enquire about hiring Stage for an event."
-                    }, void 0, false, {
-                        fileName: "src/ContactForm.js",
                         lineNumber: 39,
                         columnNumber: 9
                     }, undefined),
+                    (0, _richTextReactRenderer.documentToReactComponents)(contactFormText),
                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
                         onSubmit: handleSubmit,
                         className: "contact-form",
@@ -37159,13 +37160,13 @@ const ContactForm = ()=>{
                                         ref: emailRef
                                     }, void 0, false, {
                                         fileName: "src/ContactForm.js",
-                                        lineNumber: 46,
+                                        lineNumber: 44,
                                         columnNumber: 13
                                     }, undefined)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/ContactForm.js",
-                                lineNumber: 44,
+                                lineNumber: 42,
                                 columnNumber: 11
                             }, undefined),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
@@ -37176,13 +37177,13 @@ const ContactForm = ()=>{
                                         ref: messageRef
                                     }, void 0, false, {
                                         fileName: "src/ContactForm.js",
-                                        lineNumber: 50,
+                                        lineNumber: 48,
                                         columnNumber: 13
                                     }, undefined)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/ContactForm.js",
-                                lineNumber: 48,
+                                lineNumber: 46,
                                 columnNumber: 11
                             }, undefined),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -37190,32 +37191,32 @@ const ContactForm = ()=>{
                                 children: "Send"
                             }, void 0, false, {
                                 fileName: "src/ContactForm.js",
-                                lineNumber: 52,
+                                lineNumber: 50,
                                 columnNumber: 11
                             }, undefined)
                         ]
                     }, void 0, true, {
                         fileName: "src/ContactForm.js",
-                        lineNumber: 43,
+                        lineNumber: 41,
                         columnNumber: 9
                     }, undefined),
                     contactFormState === "success" && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
                         children: "Thank you, we will be in touch."
                     }, void 0, false, {
                         fileName: "src/ContactForm.js",
-                        lineNumber: 55,
+                        lineNumber: 53,
                         columnNumber: 11
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/ContactForm.js",
-                lineNumber: 37,
+                lineNumber: 38,
                 columnNumber: 7
             }, undefined)
         ]
     }, void 0, true, {
         fileName: "src/ContactForm.js",
-        lineNumber: 35,
+        lineNumber: 36,
         columnNumber: 5
     }, undefined);
 };
@@ -37230,7 +37231,7 @@ $RefreshReg$(_c, "ContactForm");
   window.$RefreshReg$ = prevRefreshReg;
   window.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru","axios":"jo6P5"}],"jo6P5":[function(require,module,exports) {
+},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru","axios":"jo6P5","@contentful/rich-text-react-renderer":"5HGyz"}],"jo6P5":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "default", ()=>(0, _axiosJsDefault.default));
