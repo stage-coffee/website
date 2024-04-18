@@ -124,6 +124,14 @@ small {
   display: block;
 }
 
+.contact-form * {
+  display: block;
+}
+
+.contact-form button {
+  margin-top: 20px;
+}
+
 .aspect-ratio {
   width: 50%;
   height: 0;
@@ -215,7 +223,19 @@ small {
   display: flex;
 }
 
-.river article {
+.contain {
+  max-width: 1280px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  margin-top: 3rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1rem;
+  display: flex;
+}
+
+.contain article, .river article {
   width: 100%;
 }
 

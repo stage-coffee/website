@@ -1,3 +1,5 @@
+import ContactForm from './ContactForm'
+
 const Footer = () => (
   <footer
     style={{
@@ -36,6 +38,7 @@ const Footer = () => (
         referrerPolicy="no-referrer-when-downgrade"
       ></iframe>
     </section>
+    <ContactForm />
   </footer>
 )
 

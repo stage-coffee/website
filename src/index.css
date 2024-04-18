@@ -1,3 +1,11 @@
+.contact-form * {
+  display: block;
+}
+
+.contact-form button {
+  margin-top: 20px;
+}
+
 .aspect-ratio {
   display: inline-block;
   position: relative;
@@ -92,6 +100,23 @@
   padding: 0 1rem;
 
   text-align: center;
+}
+
+.contain {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  flex-direction: column;
+  margin-top: 3rem;
+
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1280px;
+  padding: 0 1rem;
+}
+
+.contain article {
+  width: 100%;
 }
 
 .river article {
