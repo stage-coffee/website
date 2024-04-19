@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 
 const changeBg = keyframes`
   0%,100%  {
+    background-image: url(${room});
     background-position: center;
   }
 
@@ -21,6 +22,7 @@ const changeBg = keyframes`
 
 
   50% {
+    background-image: url(${roomDown});
     background-position: center;
   }
 
