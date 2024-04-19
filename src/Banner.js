@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 
 const changeBg = keyframes`
   0%,100%  {
+    background-image: url(${room});
     background-position: center;
   }
 
@@ -21,6 +22,7 @@ const changeBg = keyframes`
 
 
   50% {
+    background-image: url(${roomDown});
     background-position: center;
   }
 
@@ -34,11 +36,13 @@ const changeBg = keyframes`
 `
 
 const BackgroundImageDiv = styled.div`
+  background: black;
   background-image: url(${room});
   animation-name: ${changeBg};
   animation-duration: 40s;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
+  background-size: cover;
 `
 
 const Banner = () => {
