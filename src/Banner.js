@@ -36,11 +36,13 @@ const changeBg = keyframes`
 `
 
 const BackgroundImageDiv = styled.div`
+  background: black;
   background-image: url(${room});
   animation-name: ${changeBg};
   animation-duration: 40s;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
+  background-size: cover;
 `
 
 const Banner = () => {
