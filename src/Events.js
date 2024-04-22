@@ -42,7 +42,7 @@ const fetcher = async () => {
 }
 
 const Events = () => {
-  const { data, error } = useSWR('contentful', fetcher)
+  const { data, error } = useSWR('contentfulEvents', fetcher)
 
   if (error) {
     console.log(error)

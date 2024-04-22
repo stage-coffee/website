@@ -1,17 +1,24 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 
 import Home from './Home.js'
 import Events from './Events.js'
 
+// const router = createHashRouter([
+//   {
+//     path: '/*',
+//     element: <App />,
+//   },
+// ])
+
 const App = () => {
   return (
     <main>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route exact path="/" element={<Home />}></Route>
           <Route exact path="/events" element={<Events />}></Route>
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </main>
   )
 }
