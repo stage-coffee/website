@@ -2,6 +2,7 @@ import useSWR from 'swr'
 import { Spinner } from '@contentful/f36-spinner'
 import { createClient } from 'contentful'
 import { documentToReactComponents } from '@contentful/rich-text-react-renderer'
+import moment from 'moment'
 
 import Banner from './Banner'
 import Footer from './Footer'
@@ -12,26 +13,32 @@ const client = createClient({
 })
 
 const fetcher = async () => {
-  const websiteOrder = await client.getEntries({
-    content_type: 'websiteOrder',
+  const entries = await client.getEntries({
+    content_type: 'events',
   })
 
-  const websiteSections = websiteOrder.items[0].fields.contentOrder
-  const contactFormText = websiteOrder.items[0].fields.contactFormText
-
-  const entries = websiteSections.map((entry) => {
+  const events = entries.items.map((entry) => {
     const { fields } = entry
 
     return {
-      title: fields.title,
+      name: fields.displayName,
+      description: fields.description,
       image: fields.image.fields.file.url,
       alt: fields.image.fields.title,
-      text: fields.text,
-      css: fields.css,
+      startTime: fields.startTime,
+      endTime: fields.endTime,
     }
   })
 
-  return { entries, contactFormText }
+  const orderedEvents = events.sort(
+    (a, b) => moment(a.startTime).unix() - moment(b.startTime).unix()
+  )
+
+  const futureEvents = orderedEvents.filter(
+    (event) => moment().unix() - moment(event.startTime).unix() < 0
+  )
+
+  return { events: futureEvents }
 }
 
 const Events = () => {
@@ -43,23 +50,47 @@ const Events = () => {
   }
   if (!data) return <Spinner size="large" />
 
-  const { entries, contactFormText } = data
+  const { events } = data
 
   return (
     <>
-      <h1>Events</h1>
-      {entries.map(({ image, alt, title, text, css }, index) => {
-        return (
-          <section key={index} className="river center-vert" style={{ ...css }}>
-            <img src={image} alt={alt} aria-hidden="true" />
-            <article>
-              <h3>{title}</h3>
-              {documentToReactComponents(text)}
-            </article>
-          </section>
-        )
-      })}
-      <Footer contactFormText={contactFormText} />
+      <Banner />
+      <div className="contain">
+        <h1>Events at Stage</h1>
+      </div>
+
+      {events.map(
+        ({ name, description, startTime, endTime, image, alt }, index) => {
+          return (
+            <section key={index} className="event">
+              <div className="event-image-container">
+                <img src={image} alt={alt} aria-hidden="true" />
+                <div className="event-time-date">
+                  <div className="month">
+                    {moment(startTime).format('MMM').toUpperCase()}
+                  </div>
+                  <div className="day">{moment(startTime).format('D')}</div>
+                  <div className="time">
+                    {moment(startTime).format('h:mm A')}
+                  </div>
+                </div>
+              </div>
+              <article className="event-info">
+                <h3>{name}</h3>
+                <p className="event-description-date">
+                  {moment(startTime).format('dddd, Do MMMM YYYY')}
+                </p>
+                <p className="event-description-time">
+                  {moment(startTime).format('h:mm A')} -{' '}
+                  {moment(endTime).format('h:mm A')}
+                </p>
+                {documentToReactComponents(description)}
+              </article>
+            </section>
+          )
+        }
+      )}
+      {/* <Footer contactFormText={contactFormText} /> */}
     </>
   )
 }

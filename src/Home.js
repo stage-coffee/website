@@ -41,7 +41,14 @@ const Home = () => {
     console.log(error)
     return <div>failed to load </div>
   }
-  if (!data) return <Spinner size="large" />
+  if (!data)
+    return (
+      <>
+        <Banner />
+        <Spinner size="large" />
+        {/* <Footer contactFormText={contactFormText} /> */}
+      </>
+    )
 
   const { entries, contactFormText } = data
 

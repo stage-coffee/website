@@ -1,3 +1,73 @@
+.event {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 80px;
+  justify-content: center;
+}
+
+.event .event-info {
+  width: 100%;
+  padding-left: 40px;
+  padding-right: 40px;
+  padding-top: 0px;
+}
+
+.event .event-image-container {
+  max-width: 400px;
+  max-height: 250px;
+
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.event .event-image-container img {
+  flex-shrink: 0;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.event .event-image-container .event-time-date {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  /* left: 50%; horizontal alignment */
+  /* top: 50%; vertical alignment */
+  /* transform: translate(-20px, -20px); precise centering; see link below */
+  background: white;
+  text-align: center;
+  padding: 5px;
+  padding-bottom: 0px;
+  padding-top: 10px;
+}
+
+.event .event-image-container .event-time-date .month {
+  font-size: 14;
+}
+
+.event .event-image-container .event-time-date .day {
+  font-size: 22;
+  padding-bottom: 2px;
+}
+
+.event .event-image-container .event-time-date .time {
+  font-size: 12;
+  padding: 5px;
+  border-top: 1px solid lightgrey;
+}
+
 .contact-form * {
   display: block;
 }
@@ -164,6 +234,16 @@
 }
 
 @media screen and (min-width: 40em) {
+  .event .event-info {
+    width: 50%;
+    padding-left: 20px;
+    padding-top: 20px;
+  }
+
+  .event .event-image-container {
+    width: 50%;
+  }
+
   .contain article {
     width: 50%;
   }
