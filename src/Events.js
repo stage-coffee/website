@@ -1,48 +1,20 @@
 import useSWR from 'swr'
 import { Spinner } from '@contentful/f36-spinner'
-import { createClient } from 'contentful'
 import { documentToReactComponents } from '@contentful/rich-text-react-renderer'
 import moment from 'moment'
+
+import getHomePageFromCMS from './getHomePageFromCMS'
+import getEventsFromCMS from './getEventsFromCMS'
 
 import Banner from './Banner'
 import Footer from './Footer'
 
-const client = createClient({
-  space: process.env.CONTENTFUL_SPACE_ID,
-  accessToken: process.env.CONTENTFUL_DELIVERY_TOKEN,
-})
-
-const fetcher = async () => {
-  const entries = await client.getEntries({
-    content_type: 'events',
-  })
-
-  const events = entries.items.map((entry) => {
-    const { fields } = entry
-
-    return {
-      name: fields.displayName,
-      description: fields.description,
-      image: fields.image.fields.file.url,
-      alt: fields.image.fields.title,
-      startTime: fields.startTime,
-      endTime: fields.endTime,
-    }
-  })
-
-  const orderedEvents = events.sort(
-    (a, b) => moment(a.startTime).unix() - moment(b.startTime).unix()
-  )
-
-  const futureEvents = orderedEvents.filter(
-    (event) => moment().unix() - moment(event.startTime).unix() < 0
-  )
-
-  return { events: futureEvents }
-}
-
 const Events = () => {
-  const { data, error } = useSWR('contentfulEvents', fetcher)
+  const { data, error } = useSWR('events', getEventsFromCMS)
+  const { data: homePageData, error: homePageError } = useSWR(
+    'eventsHomePage',
+    getHomePageFromCMS
+  )
 
   if (error) {
     console.log(error)
@@ -90,7 +62,9 @@ const Events = () => {
           )
         }
       )}
-      {/* <Footer contactFormText={contactFormText} /> */}
+      {homePageData && (
+        <Footer contactFormText={homePageData.contactFormText} />
+      )}
     </>
   )
 }

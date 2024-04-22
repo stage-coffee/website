@@ -3,13 +3,6 @@ import { HashRouter, Routes, Route } from 'react-router-dom'
 import Home from './Home.js'
 import Events from './Events.js'
 
-// const router = createHashRouter([
-//   {
-//     path: '/*',
-//     element: <App />,
-//   },
-// ])
-
 const App = () => {
   return (
     <main>
