@@ -4,12 +4,14 @@ const EventsList = ({ events }) => (
   <div style={{ textAlign: 'center' }}>
     <div style={{ width: '100%' }}>
       <table>
-        {events.map(({ name, startTime }, index) => (
-          <tr key={index}>
-            <td>{moment(startTime).format('Do MMM')}</td>
-            <td>{name}</td>
-          </tr>
-        ))}
+        <tbody>
+          {events.map(({ name, startTime }, index) => (
+            <tr key={index}>
+              <td>{moment(startTime).format('Do MMM')}</td>
+              <td>{name}</td>
+            </tr>
+          ))}
+        </tbody>
       </table>
     </div>
     <a

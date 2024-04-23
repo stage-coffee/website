@@ -1,6 +1,7 @@
 import useSWR from 'swr'
 import { Spinner } from '@contentful/f36-spinner'
 import { documentToReactComponents } from '@contentful/rich-text-react-renderer'
+import { BLOCKS } from '@contentful/rich-text-types'
 
 import Banner from './Banner'
 import Footer from './Footer'
@@ -47,6 +48,7 @@ const Home = () => {
 
       return text
     },
+    renderNode: { [BLOCKS.PARAGRAPH]: (node, children) => children },
   }
 
   return (
