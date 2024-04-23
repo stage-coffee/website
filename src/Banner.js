@@ -39,7 +39,7 @@ const BackgroundImageDiv = styled.div`
   background: black;
   background-image: url(${room});
   animation-name: ${changeBg};
-  animation-duration: 40s;
+  animation-duration: 20s;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
   background-size: cover;
@@ -55,11 +55,27 @@ const Banner = () => {
       img.src = roomDown.href
       img.style = 'width: 1px; height: 1px;'
       img.className = 'hide'
-      img.onload = function () {
+      img.onload = () => {
         document.body.appendChild(img)
 
         setTimeout(() => {
           const imagesToHide = document.getElementsByClassName('hide')
+
+          for (let item of imagesToHide) {
+            item.style = 'display: none'
+          }
+        }, 100)
+      }
+
+      var img2 = new Image()
+      img2.src = roomDown.href
+      img2.style = 'width: 1px; height: 1px;'
+      img2.className = 'hide2'
+      img2.onload = () => {
+        document.body.appendChild(img2)
+
+        setTimeout(() => {
+          const imagesToHide = document.getElementsByClassName('hide2')
 
           for (let item of imagesToHide) {
             item.style = 'display: none'
@@ -85,16 +101,17 @@ const Banner = () => {
         <div className="nav-spacer">
           <span style={{ marginRight: 'auto' }}></span>
         </div>
-        <img
-          src={logo}
-          alt="Stage Logo"
+        <a
+          href="./#/"
           style={{
             // display: 'inline-block',
             paddingTop: '20px',
             paddingBottom: '20px',
             width: '200px',
           }}
-        />
+        >
+          <img src={logo} alt="Stage Logo" />
+        </a>
         <div className="nav-menu">
           <span style={{ marginRight: 'auto' }}>
             <a href="./#/">Home</a>
