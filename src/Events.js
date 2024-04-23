@@ -35,15 +35,17 @@ const Events = () => {
         ({ name, description, startTime, endTime, image, alt }, index) => {
           return (
             <section key={index} className="event">
-              <div className="event-image-container">
-                <img src={image} alt={alt} aria-hidden="true" />
-                <div className="event-time-date">
-                  <div className="month">
-                    {moment(startTime).format('MMM').toUpperCase()}
-                  </div>
-                  <div className="day">{moment(startTime).format('D')}</div>
-                  <div className="time">
-                    {moment(startTime).format('h:mm A')}
+              <div className="event-image-area">
+                <div className="event-image-container">
+                  <img src={image} alt={alt} aria-hidden="true" />
+                  <div className="event-time-date">
+                    <div className="month">
+                      {moment(startTime).format('MMM').toUpperCase()}
+                    </div>
+                    <div className="day">{moment(startTime).format('D')}</div>
+                    <div className="time">
+                      {moment(startTime).format('h:mm A')}
+                    </div>
                   </div>
                 </div>
               </div>
