@@ -71,17 +71,36 @@ const Banner = () => {
 
   return (
     <BackgroundImageDiv className="banner-img">
-      <div style={{ backgroundColor: 'rgba(0,0,0,0.5)', width: '100%' }}>
+      <div
+        style={{
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'nowrap',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div className="nav-spacer">
+          <span style={{ marginRight: 'auto' }}></span>
+        </div>
         <img
           src={logo}
           alt="Stage Logo"
           style={{
-            display: 'inline-block',
+            // display: 'inline-block',
             paddingTop: '20px',
             paddingBottom: '20px',
             width: '200px',
           }}
         />
+        <div className="nav-menu">
+          <span style={{ marginRight: 'auto' }}>
+            <a href="./#/">Home</a>
+            <a href="./#/events">Events</a>
+          </span>
+        </div>
       </div>
     </BackgroundImageDiv>
   )
