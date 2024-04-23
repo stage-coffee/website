@@ -4,10 +4,20 @@ import { documentToReactComponents } from '@contentful/rich-text-react-renderer'
 
 import Banner from './Banner'
 import Footer from './Footer'
+import EventsList from './EventsList'
+
 import getHomePageFromCMS from './getHomePageFromCMS'
+import getEventsFromCMS from './getEventsFromCMS'
+
+import EventsList from './EventsList'
 
 const Home = () => {
   const { data, error } = useSWR('homePage', getHomePageFromCMS)
+
+  const { data: eventsData, error: eventsError } = useSWR(
+    'homeEvents',
+    getEventsFromCMS
+  )
 
   if (error) {
     console.log(error)
@@ -23,6 +33,22 @@ const Home = () => {
 
   const { entries, contactFormText } = data
 
+  const renderOptions = {
+    renderText: (text) => {
+      const isEvents = text.includes('[[events]]')
+
+      if (isEvents) {
+        if (eventsError || !eventsData) {
+          return ''
+        } else {
+          return <EventsList events={eventsData.events} />
+        }
+      }
+
+      return text
+    },
+  }
+
   return (
     <>
       <Banner />
@@ -32,7 +58,7 @@ const Home = () => {
             <img src={image} alt={alt} aria-hidden="true" />
             <article>
               <h3>{title}</h3>
-              {documentToReactComponents(text)}
+              {documentToReactComponents(text, renderOptions)}
             </article>
           </section>
         )

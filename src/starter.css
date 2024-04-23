@@ -34,7 +34,8 @@ body {
 }
 
 /* Buttons in f36 default to Medium size */
-button {
+button,
+.button {
   border: 1px solid;
   box-shadow: 0px 1px 0px rgb(25, 37, 50, 0.08);
   outline: none;
@@ -52,11 +53,13 @@ button {
   border-color: var(--blue-500);
 }
 
-button:hover {
+button:hover,
+.button:hover {
   background: var(--blue-600);
   border-color: var(--blue-600);
 }
-button:focus {
+button:focus,
+.button:focus {
   border-color: var(--blue-600);
   box-shadow: var(--glow-primary);
 }
