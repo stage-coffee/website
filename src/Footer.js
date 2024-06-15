@@ -13,7 +13,7 @@ const Footer = ({ contactFormText }) => (
         title="stagecoffeeleeds Instagram"
         className="instagram-media instagram-media-rendered"
         id="instagram-embed-1"
-        src="https://www.instagram.com/stagecoffeeleeds/embed"
+        src="https://www.instagram.com/stagecoffeeleeds/embed/"
         allowtransparency="true"
         width="530"
         height="560"
