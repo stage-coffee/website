@@ -1,4 +1,5 @@
 import moment from 'moment'
+
 import { createClient } from 'contentful'
 
 const client = createClient({
