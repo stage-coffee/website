@@ -1,92 +1,53 @@
+import useSWR from 'swr'
 const logo = new URL('./assets/logo-banner.webp', import.meta.url)
-const room = new URL('./assets/stageupstairs.jpg', import.meta.url)
-const roomDown = new URL('./assets/stageroom.jpg', import.meta.url)
+const cups = new URL('./assets/cups.jpg', import.meta.url)
+const roomDown = new URL('./assets/drinks2.jpg', import.meta.url)
 
-import styled, { keyframes } from 'styled-components'
+import getBannersFromCMS from './getBannersFromCMS'
+
 import { useState, useEffect } from 'react'
 
-const changeBg = keyframes`
-  0%,100%  {
-    background-image: url(${room});
-    background-position: center;
-  }
-
-  24.9999% {
-    background-image: url(${room});
-  }
-
-  25% {
-    background-image: url(${roomDown});
-    background-position: bottom right;
-  }
-
-
-  50% {
-    background-image: url(${roomDown});
-    background-position: center;
-  }
-
-  74.9999% {
-    background-image: url(${roomDown});
-  }
-  75% {
-    background-image: url(${room});
-    background-position: top left;
-  }
-`
-
-const BackgroundImageDiv = styled.div`
-  background: black;
-  background-image: url(${room});
-  animation-name: ${changeBg};
-  animation-duration: 20s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-  background-size: cover;
-`
-
 const Banner = () => {
-  const [effectState, setEffectState] = useState(false)
+  const { data, error } = useSWR('banners', getBannersFromCMS, {
+    fallbackData: [''],
+  })
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [updateImage, setUpdateImage] = useState(true)
+
+  const changeBackgroundImage = () => {
+    setCurrentImageIndex((prevIndex) => {
+      console.log(data.length)
+      return (prevIndex + 1) % data.length
+    })
+  }
 
   useEffect(() => {
-    if (!effectState) {
-      setEffectState(true)
-      var img = new Image()
-      img.src = roomDown.href
-      img.style = 'width: 1px; height: 1px;'
-      img.className = 'hide'
-      img.onload = () => {
-        document.body.appendChild(img)
-
-        setTimeout(() => {
-          const imagesToHide = document.getElementsByClassName('hide')
-
-          for (let item of imagesToHide) {
-            item.style = 'display: none'
-          }
-        }, 100)
-      }
-
-      var img2 = new Image()
-      img2.src = roomDown.href
-      img2.style = 'width: 1px; height: 1px;'
-      img2.className = 'hide2'
-      img2.onload = () => {
-        document.body.appendChild(img2)
-
-        setTimeout(() => {
-          const imagesToHide = document.getElementsByClassName('hide2')
-
-          for (let item of imagesToHide) {
-            item.style = 'display: none'
-          }
-        }, 100)
-      }
+    if (updateImage) {
+      console.log('updateImage called')
+      setUpdateImage(false)
+      setTimeout(() => {
+        console.log('set updateImage true')
+        setUpdateImage(true)
+      }, 5000)
+      changeBackgroundImage()
     }
-  }, [])
+  }, [updateImage])
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => changeBackgroundImage(), 1000)
+
+  //   return () => clearInterval(interval)
+  // }, [])
+
+  const backgroundImageStyle = {
+    background: 'black',
+    backgroundImage: `url(${data[currentImageIndex]})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  }
 
   return (
-    <BackgroundImageDiv className="banner-img">
+    <div className="banner-img" style={backgroundImageStyle}>
       <div
         style={{
           backgroundColor: 'rgba(0,0,0,0.5)',
@@ -119,7 +80,7 @@ const Banner = () => {
           </span>
         </div>
       </div>
-    </BackgroundImageDiv>
+    </div>
   )
 }
 

@@ -17,7 +17,6 @@ const Footer = ({ contactFormText }) => (
         allowtransparency="true"
         width="530"
         height="560"
-        frameborder="0"
         style={{
           position: 'relative',
           width: '100%',
