@@ -229,10 +229,6 @@
   height: 100vw;
 }
 
-.google-maps {
-  height: 560px;
-}
-
 @media screen and (min-width: 40em) and (max-width: 56.25em) {
   .instagram-media,
   .google-maps {
