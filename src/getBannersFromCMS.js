@@ -15,22 +15,6 @@ const getBannersFromCMS = async () => {
   )
 
   return bannerImages
-
-  // console.log(bannerImages)
-
-  // const entries = websiteSections.map((entry) => {
-  //   const { fields } = entry
-
-  //   return {
-  //     title: fields.title,
-  //     image: fields.image.fields.file.url,
-  //     alt: fields.image.fields.title,
-  //     text: fields.text,
-  //     css: fields.css,
-  //   }
-  // })
-
-  // return { entries, contactFormText }
 }
 
 export default getBannersFromCMS

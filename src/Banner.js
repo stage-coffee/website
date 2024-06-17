@@ -1,14 +1,12 @@
 import useSWR from 'swr'
 const logo = new URL('./assets/logo-banner.webp', import.meta.url)
-const cups = new URL('./assets/cups.jpg', import.meta.url)
-const roomDown = new URL('./assets/drinks2.jpg', import.meta.url)
 
 import getBannersFromCMS from './getBannersFromCMS'
 
 import { useState, useEffect } from 'react'
 
 const Banner = () => {
-  const { data, error } = useSWR('banners', getBannersFromCMS, {
+  const { data } = useSWR('banners', getBannersFromCMS, {
     fallbackData: [''],
   })
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -32,12 +30,6 @@ const Banner = () => {
       changeBackgroundImage()
     }
   }, [updateImage])
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => changeBackgroundImage(), 1000)
-
-  //   return () => clearInterval(interval)
-  // }, [])
 
   const backgroundImageStyle = {
     background: 'black',
