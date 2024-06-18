@@ -13,18 +13,13 @@ const Banner = () => {
   const [updateImage, setUpdateImage] = useState(true)
 
   const changeBackgroundImage = () => {
-    setCurrentImageIndex((prevIndex) => {
-      console.log(data.length)
-      return (prevIndex + 1) % data.length
-    })
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % data.length)
   }
 
   useEffect(() => {
     if (updateImage) {
-      console.log('updateImage called')
       setUpdateImage(false)
       setTimeout(() => {
-        console.log('set updateImage true')
         setUpdateImage(true)
       }, 5000)
       changeBackgroundImage()
