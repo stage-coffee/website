@@ -37,28 +37,41 @@ const ContactForm = ({ contactFormText }) => {
       <article>
         <h3>Contact</h3>
         {documentToReactComponents(contactFormText)}
-        <form onSubmit={handleSubmit} className="contact-form">
-          <label>
-            Your email:
-            <input
-              type="email"
-              name="email"
-              ref={emailRef}
-              style={{ width: '100%' }}
-            />
-          </label>
-          <label>
-            Your message:
-            <textarea
-              name="message"
-              ref={messageRef}
-              style={{ width: '100%' }}
-            />
-          </label>
-          <button type="submit">Send</button>
-        </form>
-        {contactFormState === 'success' && (
-          <p>Thank you, we will be in touch.</p>
+        {contactFormState === 'success' ? (
+          <>
+            <p style={{ fontWeight: 'bold' }}>
+              Thank you, we will be in touch.
+            </p>
+            <button
+              type="submit"
+              onClick={() => {
+                setContactFormState('')
+              }}
+            >
+              Send another message
+            </button>
+          </>
+        ) : (
+          <form onSubmit={handleSubmit} className="contact-form">
+            <label>
+              Your email:
+              <input
+                type="email"
+                name="email"
+                ref={emailRef}
+                style={{ width: '100%' }}
+              />
+            </label>
+            <label>
+              Your message:
+              <textarea
+                name="message"
+                ref={messageRef}
+                style={{ width: '100%' }}
+              />
+            </label>
+            <button type="submit">Send</button>
+          </form>
         )}
       </article>
     </section>
