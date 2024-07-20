@@ -3,14 +3,12 @@ import { Spinner } from '@contentful/f36-spinner'
 import { documentToReactComponents } from '@contentful/rich-text-react-renderer'
 import { BLOCKS } from '@contentful/rich-text-types'
 
-import Banner from './Banner'
-import Footer from './Footer'
-import EventsList from './EventsList'
+import Banner from '../components/Banner'
+import Footer from '../components/Footer'
+import EventsList from '../components/EventsList'
 
-import getHomePageFromCMS from './getHomePageFromCMS'
-import getEventsFromCMS from './getEventsFromCMS'
-
-import EventsList from './EventsList'
+import getHomePageFromCMS from '../utils/getHomePageFromCMS'
+import getEventsFromCMS from '../utils/getEventsFromCMS'
 
 const Home = () => {
   const { data, error } = useSWR('homePage', getHomePageFromCMS)
@@ -54,17 +52,23 @@ const Home = () => {
   return (
     <>
       <Banner />
-      {entries.map(({ image, alt, title, text, css }, index) => {
-        return (
-          <section key={index} className="river center-vert" style={{ ...css }}>
-            <img src={image} alt={alt} aria-hidden="true" />
-            <article>
-              <h3>{title}</h3>
-              {documentToReactComponents(text, renderOptions)}
-            </article>
-          </section>
-        )
-      })}
+      <div className="home-page">
+        {entries.map(({ image, alt, title, text, css }, index) => {
+          return (
+            <section
+              key={index}
+              className="river center-vert"
+              style={{ ...css }}
+            >
+              <img src={image} alt={alt} aria-hidden="true" />
+              <article>
+                <h3>{title}</h3>
+                {documentToReactComponents(text, renderOptions)}
+              </article>
+            </section>
+          )
+        })}
+      </div>
       <Footer contactFormText={contactFormText} />
     </>
   )
