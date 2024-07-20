@@ -1,7 +1,7 @@
 import useSWR from 'swr'
-const logo = new URL('./assets/logo-banner.webp', import.meta.url)
+const logo = new URL('../assets/logo-banner.webp', import.meta.url)
 
-import getBannersFromCMS from './getBannersFromCMS'
+import getBannersFromCMS from '../utils/getBannersFromCMS'
 
 import { useState, useEffect } from 'react'
 
@@ -31,6 +31,8 @@ const Banner = () => {
     backgroundImage: `url(${data[currentImageIndex]})`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
+    display: 'flex',
+    flexDirection: 'column',
   }
 
   return (
@@ -46,9 +48,6 @@ const Banner = () => {
           justifyContent: 'center',
         }}
       >
-        <div className="nav-spacer">
-          <span style={{ marginRight: 'auto' }}></span>
-        </div>
         <a
           href="./#/"
           style={{
@@ -60,13 +59,27 @@ const Banner = () => {
         >
           <img src={logo} alt="Stage Logo" />
         </a>
-        <div className="nav-menu">
-          <span style={{ marginRight: 'auto' }}>
-            <a href="./#/">Home</a>
-            <a href="./#/events">Events</a>
-          </span>
-        </div>
       </div>
+      <a
+        href="./#/jobs"
+        style={{
+          backgroundColor: 'rgb(255, 207, 98)',
+          display: 'block',
+          marginTop: 'auto',
+        }}
+      >
+        <h4
+          style={{
+            fontWeight: 800,
+            paddingTop: '20px',
+            paddingBottom: '20px',
+            display: 'block',
+            margin: 0,
+          }}
+        >
+          Join Our Team!
+        </h4>
+      </a>
     </div>
   )
 }

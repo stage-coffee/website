@@ -3,11 +3,11 @@ import { Spinner } from '@contentful/f36-spinner'
 import { documentToReactComponents } from '@contentful/rich-text-react-renderer'
 import moment from 'moment'
 
-import getHomePageFromCMS from './getHomePageFromCMS'
-import getEventsFromCMS from './getEventsFromCMS'
+import getHomePageFromCMS from '../utils/getHomePageFromCMS'
+import getEventsFromCMS from '../utils/getEventsFromCMS'
 
-import Banner from './Banner'
-import Footer from './Footer'
+import Banner from '../components/Banner'
+import Footer from '../components/Footer'
 
 const Events = () => {
   const { data, error } = useSWR('events', getEventsFromCMS)
@@ -29,6 +29,15 @@ const Events = () => {
       <Banner />
       <div className="contain">
         <h1>Events at Stage</h1>
+        {events.length === 0 && (
+          <div>
+            <p>There are no upcoming events.</p>
+            <p>
+              If you would like to use Stage to host an event please use the
+              contact form below.
+            </p>
+          </div>
+        )}
       </div>
 
       {events.map(
