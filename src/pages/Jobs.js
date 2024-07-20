@@ -29,7 +29,7 @@ const Jobs = () => {
       {jobs.length === 0 && (
         <div className="contain">
           <div>
-            <p>Sorry we aren't currently hiring.</p>
+            <p>Sorry, we don't currently have any positions available.</p>
           </div>
         </div>
       )}
