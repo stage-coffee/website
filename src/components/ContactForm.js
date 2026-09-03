@@ -33,44 +33,52 @@ const ContactForm = ({ contactFormText }) => {
   }
 
   return (
-    <section className="contain" style={{ paddingBottom: '3rem' }}>
-      <article>
+    <section className="contain contact-section">
+      <article className="contact-card">
         <h3>Contact</h3>
         {documentToReactComponents(contactFormText)}
         {contactFormState === 'success' ? (
-          <>
-            <p style={{ fontWeight: 'bold' }}>
+          <div className="contact-success" role="status">
+            <p>
               Thank you, we will be in touch.
             </p>
             <button
-              type="submit"
+              type="button"
               onClick={() => {
                 setContactFormState('')
               }}
             >
               Send another message
             </button>
-          </>
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="contact-form">
-            <label>
-              Your email:
+            <label htmlFor="contact-email">
+              Your email
               <input
+                id="contact-email"
                 type="email"
                 name="email"
                 ref={emailRef}
-                style={{ width: '100%' }}
+                autoComplete="email"
+                placeholder="you@example.com"
+                required
               />
             </label>
-            <label>
-              Your message:
+            <label htmlFor="contact-message">
+              Your message
               <textarea
+                id="contact-message"
                 name="message"
                 ref={messageRef}
-                style={{ width: '100%' }}
+                rows="6"
+                placeholder="How can we help?"
+                required
               />
             </label>
-            <button type="submit">Send</button>
+            <button type="submit" className="contact-submit">
+              Send message
+            </button>
           </form>
         )}
       </article>

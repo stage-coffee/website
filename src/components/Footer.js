@@ -52,8 +52,8 @@ const Footer = ({ contactFormText }) => (
             color: '#fdfdfd',
           }}
         >
-          © 2024, Stage Espresso and Brewbar | 41 Great George St, Leeds,
-          Yorkshire, LS1 3BB
+          © {new Date().getFullYear()}, Stage Espresso and Brewbar | 41 Great
+          George St, Leeds, Yorkshire, LS1 3BB
         </p>
       </div>
     </div>

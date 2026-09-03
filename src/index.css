@@ -96,12 +96,106 @@
   border-top: 1px solid lightgrey;
 }
 
-.contact-form * {
-  display: block;
+.contain.contact-section {
+  align-items: center;
+  padding-bottom: 3rem;
 }
 
-.contact-form button {
-  margin-top: 20px;
+.contact-section .contact-card {
+  width: 100%;
+  max-width: 680px;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid rgba(62, 118, 146, 0.2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 24px rgba(31, 57, 70, 0.08);
+}
+
+.contact-card h3 {
+  margin-top: 0;
+}
+
+.contact-card ul,
+.contact-card ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contact-card li + li {
+  margin-top: 1rem;
+}
+
+.contact-form {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.contact-form label {
+  display: grid;
+  gap: 0.5rem;
+  color: #243e4b;
+  font-weight: 700;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid #9aabb4;
+  border-radius: 6px;
+  background: #fff;
+  color: #172a33;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.contact-form textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: #667982;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: #3e7692;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(62, 118, 146, 0.2);
+}
+
+.contact-form .contact-submit,
+.contact-success button {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0.7rem 1.25rem;
+  border-color: #3e7692;
+  border-radius: 6px;
+  background: #3e7692;
+  font-weight: 700;
+}
+
+.contact-form .contact-submit:hover,
+.contact-success button:hover {
+  border-color: #315f76;
+  background: #315f76;
+}
+
+.contact-success p {
+  font-weight: 700;
+}
+
+@media screen and (max-width: 40em) {
+  .contact-form .contact-submit,
+  .contact-success button {
+    width: 100%;
+  }
 }
 
 .center-vert {
