@@ -1,6 +1,10 @@
 @import url('https://unpkg.com/modern-css-reset/dist/reset.min.css');
 @import url('https://unpkg.com/@contentful/f36-tokens@4.0.1/dist/css/index.css');
-@import url('https://www.contentful.com/fonts.css');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap');
+
+:root {
+  --font-family: 'DM Sans', sans-serif;
+}
 
 body,
 html {
@@ -26,11 +30,18 @@ a {
 
 body {
   -webkit-font-smoothing: antialiased;
-  font-family: 'Avenir Next W01';
+  font-family: var(--font-family);
   margin: 0;
   color: var(--text-color);
   background: var(--bkg);
   line-height: var(--line-height-default);
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 
 /* Buttons in f36 default to Medium size */
