@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "contentful:setup-admin": "node scripts/setup-admin-app.mjs",
     "contentful:setup-menu": "node scripts/setup-food-menu.mjs",
     "contentful:setup-coffee": "node scripts/setup-coffee.mjs",
     "contentful:publish-coffees": "node scripts/publish-current-coffees.mjs"
@@ -24,10 +25,12 @@
   "dependencies": {
     "@astrojs/react": "latest",
     "@astrojs/sitemap": "latest",
+    "@contentful/app-sdk": "^4.69.0",
     "@contentful/rich-text-react-renderer": "latest",
     "@contentful/rich-text-types": "latest",
     "@fontsource-variable/dm-sans": "latest",
     "astro": "latest",
+    "contentful-management": "^12.16.0",
     "react": "latest",
     "react-dom": "latest"
   },

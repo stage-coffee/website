@@ -39,6 +39,7 @@ jobs:
           PUBLIC_CONTENTFUL_SPACE_ID: ${{ vars.CONTENTFUL_SPACE_ID }}
           PUBLIC_CONTENTFUL_PREVIEW_TOKEN: ${{ secrets.CONTENTFUL_PREVIEW_TOKEN }}
           PUBLIC_CONTENTFUL_ENVIRONMENT: ${{ vars.CONTENTFUL_ENVIRONMENT || 'master' }}
+          PUBLIC_CONTENTFUL_ADMIN_APP_ID: ${{ vars.CONTENTFUL_ADMIN_APP_ID }}
           PUBLIC_PREVIEW_PASSWORD_HASH: ${{ secrets.PREVIEW_PASSWORD_HASH }}
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
@@ -78,6 +79,7 @@ jobs:
           PUBLIC_CONTENTFUL_SPACE_ID: ${{ vars.CONTENTFUL_SPACE_ID }}
           PUBLIC_CONTENTFUL_PREVIEW_TOKEN: ${{ secrets.CONTENTFUL_PREVIEW_TOKEN }}
           PUBLIC_CONTENTFUL_ENVIRONMENT: ${{ vars.CONTENTFUL_ENVIRONMENT || 'master' }}
+          PUBLIC_CONTENTFUL_ADMIN_APP_ID: ${{ vars.CONTENTFUL_ADMIN_APP_ID }}
           PUBLIC_PREVIEW_PASSWORD_HASH: ${{ secrets.PREVIEW_PASSWORD_HASH }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4

@@ -754,6 +754,306 @@ p {
   max-width: 12ch;
 }
 
+.admin-body {
+  min-height: 100vh;
+  background: var(--cream);
+}
+.admin-standalone {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+.coffee-admin {
+  width: min(100% - 2rem, 64rem);
+  margin-inline: auto;
+  padding-block: clamp(1.5rem, 4vw, 3rem) 7rem;
+}
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+.admin-header h1 {
+  margin-bottom: 0;
+  font-size: clamp(2.25rem, 6vw, 4rem);
+}
+.admin-kicker {
+  margin-bottom: 0.35rem;
+  color: var(--blue-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.admin-user {
+  display: grid;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: var(--paper);
+  text-align: right;
+}
+.admin-user span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.admin-message {
+  margin-bottom: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.65rem;
+  font-weight: 700;
+}
+.admin-message-error {
+  border: 1px solid #a83a32;
+  background: #fff0ed;
+  color: #7d211c;
+}
+.admin-message-success {
+  border: 1px solid #3f7956;
+  background: #edf9f1;
+  color: #245036;
+}
+.admin-toolbar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.admin-search {
+  flex: 1;
+}
+.admin-search input,
+.admin-field input,
+.admin-field textarea,
+.admin-field select,
+.admin-price-row input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid rgba(30, 39, 35, 0.4);
+  border-radius: 0.6rem;
+  background: white;
+  color: var(--ink);
+}
+.admin-field textarea {
+  resize: vertical;
+}
+.admin-primary-button,
+.admin-secondary-button,
+.admin-danger-button,
+.admin-icon-button,
+.admin-tabs button {
+  min-height: 3rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--ink);
+  border-radius: 0.6rem;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.admin-primary-button {
+  background: var(--ink);
+  color: white;
+}
+.admin-secondary-button,
+.admin-icon-button {
+  background: var(--paper);
+  color: var(--ink);
+}
+.admin-danger-button {
+  border-color: #a83a32;
+  background: #fff0ed;
+  color: #7d211c;
+}
+.admin-icon-button {
+  min-height: 2.75rem;
+  border-color: var(--line);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.admin-primary-button:disabled,
+.admin-secondary-button:disabled,
+.admin-danger-button:disabled,
+.admin-icon-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+.admin-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+.admin-tabs button {
+  min-height: 2.75rem;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+.admin-tabs button[aria-pressed='true'] {
+  border-color: var(--ink);
+  background: var(--yellow);
+  color: var(--ink);
+}
+.admin-coffee-list {
+  display: grid;
+  gap: 0.8rem;
+}
+.admin-coffee-card,
+.admin-empty-card,
+.admin-form-section {
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: var(--paper);
+  box-shadow: 0 0.35rem 1.2rem rgba(30, 39, 35, 0.06);
+}
+.admin-coffee-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.1rem 1.25rem;
+}
+.admin-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.admin-card-heading h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
+}
+.admin-coffee-card p {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.admin-card-roaster {
+  color: var(--ink) !important;
+  font-weight: 700;
+}
+.admin-card-sections {
+  font-size: 0.8rem !important;
+}
+.admin-status {
+  display: inline-flex;
+  padding: 0.2rem 0.45rem;
+  border-radius: 99rem;
+  background: #e4e7e4;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.admin-status-published {
+  background: #d9f0df;
+  color: #245036;
+}
+.admin-status-changed {
+  background: var(--yellow-light);
+  color: var(--ink);
+}
+.admin-card-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+}
+.admin-empty-card {
+  padding: 2rem;
+  text-align: center;
+}
+.admin-empty-card h1 {
+  font-size: clamp(2.25rem, 6vw, 4rem);
+}
+.admin-form {
+  display: grid;
+  gap: 1rem;
+}
+.admin-form-section {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.1rem, 4vw, 2rem);
+}
+.admin-form-section h2 {
+  margin-bottom: 0.25rem;
+  font-size: 1.55rem;
+}
+.admin-field {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 750;
+}
+.admin-field small {
+  margin-left: 0.35rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.admin-field [aria-invalid='true'] {
+  border-color: #a83a32;
+}
+.admin-field-error {
+  margin: 0;
+  color: #8b1e1e;
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+.admin-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+.admin-checkboxes label {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: var(--cream);
+  font-weight: 750;
+}
+.admin-checkboxes input {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0;
+  accent-color: var(--blue-dark);
+}
+.admin-help {
+  margin: -0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.admin-price-list {
+  display: grid;
+  gap: 0.65rem;
+}
+.admin-price-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+}
+.admin-form-actions {
+  position: sticky;
+  z-index: 2;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: rgba(255, 253, 248, 0.95);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(0.5rem);
+}
+
 @media (max-width: 48rem) {
   .preview-indicator {
     top: 0.65rem;
@@ -797,6 +1097,23 @@ p {
     grid-template-columns: 1fr;
     gap: 0;
   }
+  .coffee-admin {
+    width: min(100% - 1rem, 64rem);
+    padding-top: 1rem;
+  }
+  .admin-header,
+  .admin-coffee-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .admin-user {
+    width: fit-content;
+    text-align: left;
+  }
+  .admin-card-actions > *,
+  .admin-form-actions > * {
+    flex: 1;
+  }
 }
 
 @media (max-width: 32rem) {
@@ -808,6 +1125,19 @@ p {
   }
   .map-frame {
     min-height: 22rem;
+  }
+  .admin-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .admin-checkboxes {
+    grid-template-columns: 1fr;
+  }
+  .admin-price-row {
+    grid-template-columns: 1fr;
+  }
+  .admin-form-actions {
+    margin-inline: -0.25rem;
   }
 }
 

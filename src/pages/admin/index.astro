@@ -1,0 +1,37 @@
+---
+import '../../styles/global.css'
+import CoffeeAdminApp from '../../components/CoffeeAdminApp'
+
+const space =
+  import.meta.env.PUBLIC_CONTENTFUL_SPACE_ID ||
+  import.meta.env.CONTENTFUL_SPACE_ID ||
+  ''
+const environment =
+  import.meta.env.PUBLIC_CONTENTFUL_ENVIRONMENT ||
+  import.meta.env.CONTENTFUL_ENVIRONMENT ||
+  'master'
+const appId = import.meta.env.PUBLIC_CONTENTFUL_ADMIN_APP_ID || ''
+const adminUrl =
+  space && environment && appId
+    ? `https://app.contentful.com/spaces/${space}/environments/${environment}/app_installations/${appId}/`
+    : ''
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta
+      name="description"
+      content="Authenticated coffee administration for Stage Espresso & Brewbar."
+    />
+    <meta name="theme-color" content="#f2b84b" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <title>Coffee admin | Stage Espresso &amp; Brewbar</title>
+  </head>
+  <body class="admin-body">
+    <CoffeeAdminApp client:only="react" adminUrl={adminUrl} />
+  </body>
+</html>

@@ -11,6 +11,22 @@ test('public routes render useful headings and metadata', async ({ page }) => {
   }
 })
 
+test('admin route is excluded from indexing and fails closed before setup', async ({
+  page,
+}) => {
+  await page.goto('/admin')
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    'content',
+    'noindex, nofollow'
+  )
+  await expect(
+    page.getByRole('heading', { name: 'Coffee admin' })
+  ).toBeVisible()
+  await expect(
+    page.getByText('The Contentful admin app has not been configured yet.')
+  ).toBeVisible()
+})
+
 test('preview content is gated and excluded from indexing', async ({
   page,
 }) => {

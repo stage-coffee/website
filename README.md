@@ -56,6 +56,7 @@ npm run check        # Astro and TypeScript diagnostics
 npm test             # unit tests
 npm run test:e2e     # desktop and mobile browser tests
 npm run format:check # formatting check
+npm run contentful:setup-admin # create and install the private Coffee Admin app
 npm run contentful:setup-menu # create the Food Menu model and draft
 npm run contentful:setup-coffee # create the Coffee model and placeholder draft
 npm run contentful:publish-coffees # update and publish the current coffee list
@@ -75,6 +76,37 @@ Production routes contain published Contentful content in their generated HTML.
 Preview routes fetch saved drafts from `preview.contentful.com` after the shared
 password is entered and refresh their content on every page load.
 
+## Coffee admin
+
+`/admin` opens a mobile-friendly coffee editor inside Contentful. Contentful
+handles authentication, so every staff member must have their own account and
+membership of the Stage space. Updates are made with the signed-in user's
+permissions and remain attributed to that user in Contentful.
+
+The editor can create, edit and immediately publish coffees. Removing a coffee
+unpublishes and archives it; archived entries remain available for restoration.
+The existing Contentful webhook rebuilds the public site after publishing or
+unpublishing.
+
+To create or update the private Page app, set a valid
+`CONTENTFUL_MANAGEMENT_TOKEN` in `.env`, then run:
+
+```bash
+npm run contentful:setup-admin
+```
+
+The command discovers the organization from the configured space, creates the
+`Stage Coffee Admin` app definition with `https://stagecoffee.com/admin` as its
+source, and installs it in the configured environment. Copy the reported app ID
+into `PUBLIC_CONTENTFUL_ADMIN_APP_ID` locally and into the GitHub repository
+variable `CONTENTFUL_ADMIN_APP_ID`. The app ID is public; no management token is
+included in the browser bundle.
+
+For local iframe development, set `CONTENTFUL_ADMIN_APP_SRC` to the local HTTPS
+URL exposed to Contentful and rerun the setup command. Direct visits to `/admin`
+redirect to the authenticated Contentful Page app; the editor itself renders
+only in Contentful's app frame.
+
 ## GitHub Pages configuration
 
 Set GitHub Pages to use **GitHub Actions**, then configure these repository
@@ -82,6 +114,7 @@ variables:
 
 - `CONTENTFUL_SPACE_ID`
 - `CONTENTFUL_ENVIRONMENT` (normally `master`)
+- `CONTENTFUL_ADMIN_APP_ID`
 
 Configure these repository secrets:
 
@@ -126,7 +159,7 @@ The site preserves the existing Contentful types:
 - `coffee`: coffee name, roaster, tasting notes, origin, region,
   altitude, producer, farm, varietal, optional process, caffeine status, and
   repeatable price options, plus independent House Espresso, House Batch,
-  Filter, and Retail section flags
+  Pour Over, and Retail section flags
 
 To create the Food Menu model and initial unpublished menu, put a valid
 `CONTENTFUL_MANAGEMENT_TOKEN` in `.env` and run
