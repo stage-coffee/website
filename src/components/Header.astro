@@ -1,0 +1,71 @@
+---
+import darkLogo from '../assets/logo-wordmark-dark.png'
+
+interface Props {
+  preview?: boolean
+}
+
+const { preview = false } = Astro.props
+const homeHref = preview ? '/preview' : '/'
+const menuHref = preview ? '/preview/menu' : '/menu'
+const coffeeHref = preview ? '/preview/coffee' : '/coffee'
+---
+
+<header class="site-header">
+  <a class="brand" href={homeHref} aria-label="Stage Espresso home">
+    <img src={darkLogo.src} width="198" height="69" alt="Stage" />
+  </a>
+  <nav aria-label="Main navigation">
+    <a href={homeHref}>Home</a>
+    <a href={menuHref}>Menu</a>
+    <a href={coffeeHref}>Coffee</a>
+    <a href="#contact">Contact</a>
+    <a
+      class="nav-social"
+      href="https://www.instagram.com/stagecoffeeleeds/"
+      target="_blank"
+      rel="noreferrer">Instagram</a
+    >
+  </nav>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('.site-header')
+  let previousScrollPosition = window.scrollY
+  let frameRequested = false
+
+  const updateHeader = () => {
+    if (!header) return
+
+    const currentScrollPosition = window.scrollY
+    const distance = currentScrollPosition - previousScrollPosition
+
+    if (
+      currentScrollPosition <= header.offsetHeight ||
+      header.matches(':focus-within')
+    ) {
+      header.removeAttribute('data-hidden')
+    } else if (distance > 1) {
+      header.dataset.hidden = 'true'
+    } else if (distance < -1) {
+      header.removeAttribute('data-hidden')
+    }
+
+    previousScrollPosition = currentScrollPosition
+    frameRequested = false
+  }
+
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (frameRequested) return
+      frameRequested = true
+      window.requestAnimationFrame(updateHeader)
+    },
+    { passive: true }
+  )
+
+  header?.addEventListener('focusin', () =>
+    header.removeAttribute('data-hidden')
+  )
+</script>

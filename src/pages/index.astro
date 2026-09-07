@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Hero from '../components/Hero.astro'
+import { HomeSections, JobsBanner } from '../components/PageViews'
+import { getProductionContent } from '../lib/contentful'
+
+const content = await getProductionContent()
+const description =
+  'Independent speciality coffee, events and a warm welcome at Stage Espresso & Brewbar in central Leeds.'
+const cafeSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'CafeOrCoffeeShop',
+  name: 'Stage Espresso & Brewbar',
+  url: 'https://stagecoffee.com/',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '41 Great George Street',
+    addressLocality: 'Leeds',
+    postalCode: 'LS1 3BB',
+    addressCountry: 'GB',
+  },
+  sameAs: ['https://www.instagram.com/stagecoffeeleeds/'],
+}
+---
+
+<BaseLayout
+  title="Stage Espresso & Brewbar | Independent coffee in Leeds"
+  description={description}
+  contact={content.contactFormText}
+  structuredData={cafeSchema}
+>
+  <main>
+    <Hero
+      images={content.banners}
+      title="Seriously good coffee"
+      quotedTitle
+      introduction="Thoughtfully sourced and carefully made coffee, alongside house baked goods and a fresh, satisfying food menu."
+    />
+    <JobsBanner jobs={content.jobs} href="/jobs/" />
+    <HomeSections sections={content.homeSections} events={content.events} />
+  </main>
+</BaseLayout>

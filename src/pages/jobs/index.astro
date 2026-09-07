@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import Hero from '../../components/Hero.astro'
+import { JobsView } from '../../components/PageViews'
+import { getProductionContent } from '../../lib/contentful'
+
+const content = await getProductionContent()
+const description =
+  'Current jobs and opportunities to join the team at Stage Espresso & Brewbar in Leeds.'
+const schemas = content.jobs.map((job) => ({
+  '@context': 'https://schema.org',
+  '@type': 'JobPosting',
+  title: job.position,
+  hiringOrganization: {
+    '@type': 'Organization',
+    name: 'Stage Espresso & Brewbar',
+  },
+  jobLocation: {
+    '@type': 'Place',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '41 Great George Street',
+      addressLocality: 'Leeds',
+      postalCode: 'LS1 3BB',
+      addressCountry: 'GB',
+    },
+  },
+}))
+---
+
+<BaseLayout
+  title="Jobs at Stage | Stage Espresso & Brewbar"
+  description={description}
+  contact={content.contactFormText}
+  structuredData={schemas}
+>
+  <main>
+    <Hero
+      images={content.banners}
+      title="Work with us."
+      introduction="See the latest opportunities to become part of the team at Stage."
+    />
+    <section class="section-shell page-section">
+      <JobsView jobs={content.jobs} />
+    </section>
+  </main>
+</BaseLayout>

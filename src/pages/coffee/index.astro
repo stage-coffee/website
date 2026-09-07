@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import CoffeeView from '../../components/CoffeeView'
+import { getProductionContent } from '../../lib/contentful'
+
+const content = await getProductionContent()
+const description =
+  'Explore the coffees currently served at Stage Espresso & Brewbar, including tasting notes, origins, processes and prices.'
+---
+
+<BaseLayout
+  title="Our coffees | Stage Espresso & Brewbar"
+  description={description}
+  contact={content.contactFormText}
+>
+  <main>
+    <CoffeeView coffees={content.coffees} />
+  </main>
+</BaseLayout>

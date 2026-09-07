@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MenuView from '../../components/MenuView'
+import { getProductionContent } from '../../lib/contentful'
+
+const content = await getProductionContent()
+const description =
+  'Food at Stage Espresso & Brewbar, including breakfast, lunch, house-baked goods and fresh focaccia sandwiches.'
+---
+
+<BaseLayout
+  title="Food menu | Stage Espresso & Brewbar"
+  description={description}
+  contact={content.contactFormText}
+>
+  <main>
+    <MenuView menu={content.foodMenu} />
+  </main>
+</BaseLayout>

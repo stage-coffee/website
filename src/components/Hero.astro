@@ -1,0 +1,15 @@
+---
+import HeroView from './HeroView'
+import type { ImageAsset } from '../lib/contentful'
+
+interface Props {
+  images: ImageAsset[]
+  title: string
+  introduction: string
+  quotedTitle?: boolean
+}
+
+const { images, title, introduction, quotedTitle = false } = Astro.props
+---
+
+<HeroView {images} {title} {introduction} {quotedTitle} />

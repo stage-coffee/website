@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import PreviewApp from './PreviewApp'
+
+interface Props {
+  page: 'home' | 'events' | 'jobs' | 'menu' | 'coffee'
+}
+const { page } = Astro.props
+const labels = {
+  home: 'Home',
+  events: 'Events',
+  jobs: 'Jobs',
+  menu: 'Menu',
+  coffee: 'Coffee',
+}
+---
+
+<BaseLayout
+  title={`${labels[page]} preview | Stage Espresso & Brewbar`}
+  description="Password-gated preview of draft Stage website content."
+  noindex
+>
+  <aside class="preview-indicator" aria-label="Preview mode">
+    <strong>Preview</strong>
+    <span>Unpublished content</span>
+  </aside>
+  <PreviewApp
+    client:load
+    page={page}
+    space={import.meta.env.PUBLIC_CONTENTFUL_SPACE_ID ||
+      import.meta.env.CONTENTFUL_SPACE_ID ||
+      ''}
+    token={import.meta.env.PUBLIC_CONTENTFUL_PREVIEW_TOKEN || ''}
+    environment={import.meta.env.PUBLIC_CONTENTFUL_ENVIRONMENT || 'master'}
+    passwordHash={import.meta.env.PUBLIC_PREVIEW_PASSWORD_HASH || ''}
+  />
+</BaseLayout>

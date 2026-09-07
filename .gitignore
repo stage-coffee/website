@@ -12,6 +12,9 @@
 /build
 /devBuild
 /dist
+/.astro
+/test-results
+/playwright-report
 
 # misc
 .DS_Store
