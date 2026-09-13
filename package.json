@@ -1,39 +1,48 @@
 {
-  "homepage": "./",
-  "name": "contentful-react-starter",
-  "version": "0.1.0",
-  "dependencies": {
-    "@contentful/f36-spinner": "^4.25.1",
-    "@contentful/rich-text-react-renderer": "^15.19.6",
-    "axios": "^1.6.8",
-    "contentful": "^10.8.8",
-    "contentful-import": "^8.5.23",
-    "dotenv": "^16.0.3",
-    "gh-pages": "^6.1.1",
-    "moment": "^2.30.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3",
-    "styled-components": "^6.1.8",
-    "swr": "^2.0.1"
+  "name": "stage-coffee-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "parcel ./public/index.html --open --dist-dir devBuild",
-    "build": "parcel build ./public/index.html --public-url './' --dist-dir dist",
-    "setup": "node ./contentful/setup.js",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist --cname 'stagecoffee.com'"
+    "dev": "astro dev",
+    "dev:host": "astro dev --host 0.0.0.0",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "contentful:setup-admin": "node scripts/setup-admin-app.mjs",
+    "contentful:setup-home-menu": "node scripts/setup-home-menu-section.mjs",
+    "contentful:setup-menu": "node scripts/setup-food-menu.mjs",
+    "contentful:setup-coffee": "node scripts/setup-coffee.mjs",
+    "contentful:publish-coffees": "node scripts/publish-current-coffees.mjs"
   },
-  "browserslist": [
-    "last 1 chrome version",
-    "last 1 firefox version",
-    "last 1 safari version"
-  ],
+  "dependencies": {
+    "@astrojs/react": "latest",
+    "@astrojs/sitemap": "latest",
+    "@contentful/app-sdk": "^4.69.0",
+    "@contentful/rich-text-react-renderer": "latest",
+    "@contentful/rich-text-types": "latest",
+    "@fontsource-variable/dm-sans": "latest",
+    "astro": "latest",
+    "contentful-management": "^12.16.0",
+    "react": "latest",
+    "react-dom": "latest"
+  },
   "devDependencies": {
-    "@parcel/packager-raw-url": "^2.8.3",
-    "@parcel/transformer-webmanifest": "^2.8.3",
-    "buffer": "^5.5.0",
-    "parcel": "^2.8.3",
-    "process": "^0.11.10"
+    "@astrojs/check": "latest",
+    "@playwright/test": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "prettier": "latest",
+    "prettier-plugin-astro": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
   }
 }

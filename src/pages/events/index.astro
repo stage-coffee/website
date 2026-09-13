@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import Hero from '../../components/Hero.astro'
+import { EventsView } from '../../components/PageViews'
+import { getProductionContent } from '../../lib/contentful'
+
+const content = await getProductionContent()
+const description =
+  'Open mic nights, live music, games and community events at Stage Espresso & Brewbar in Leeds.'
+const schemas = content.events.map((event) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: event.name,
+  startDate: event.startTime,
+  endDate: event.endTime,
+  image: event.image?.url,
+  location: {
+    '@type': 'Place',
+    name: 'Stage Espresso & Brewbar',
+    address: '41 Great George Street, Leeds, LS1 3BB',
+  },
+}))
+---
+
+<BaseLayout
+  title="Events at Stage | Stage Espresso & Brewbar"
+  description={description}
+  contact={content.contactFormText}
+  structuredData={schemas}
+>
+  <main>
+    <Hero
+      images={content.banners}
+      title="Events at Stage."
+      introduction="Good coffee, good company and plenty happening after hours."
+    />
+    <section class="section-shell page-section">
+      <EventsView events={content.events} />
+    </section>
+  </main>
+</BaseLayout>

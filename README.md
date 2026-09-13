@@ -1,98 +1,188 @@
-# Stage Espresso website
+# Stage Espresso & Brewbar
 
-The website for Stage Espresso & Brewbar in Leeds. It is a React application
-powered by Contentful and hosted with GitHub Pages.
+The Astro website for [Stage Espresso & Brewbar](https://stagecoffee.com) in
+Leeds. Published content is generated from Contentful and deployed to GitHub
+Pages. Staff can review saved drafts through the frontend-gated `/preview`
+routes. password: soupswimsale
 
 ## Links
 
 - Website: [stagecoffee.com](https://stagecoffee.com)
 - GitHub: [stage-coffee/website](https://github.com/stage-coffee/website)
-- Contentful: [Stage Contentful space](https://app.contentful.com/spaces/cccc6mdhxqr5/environments/master/home) (account access required)
+- Contentful: [Stage space](https://app.contentful.com/spaces/cccc6mdhxqr5/environments/master/home)
 - Instagram: [@stagecoffeeleeds](https://www.instagram.com/stagecoffeeleeds/)
 
-## Site routes
+## Requirements
 
-- Home: [stagecoffee.com](https://stagecoffee.com)
-- Events: [stagecoffee.com/#/events](https://stagecoffee.com/#/events)
-- Jobs: [stagecoffee.com/#/jobs](https://stagecoffee.com/#/jobs)
-
-The application uses hash-based routing so that its routes work when hosted on
-GitHub Pages.
-
-## Technology
-
-- React 18
-- Parcel 2
-- Contentful
-- React Router
-- styled-components
-- GitHub Pages
-
-Contentful provides the homepage sections, banners, events, and job listings.
-The application reads published content from the `master` environment in the
-Stage Contentful space.
+- Node.js 22.12 or newer (`.nvmrc` is included)
+- Access to the Stage Contentful space for real content
 
 ## Local development
 
-Clone the repository and install its dependencies:
-
 ```bash
-git clone git@github.com:stage-coffee/website.git
-cd website
+nvm use
 npm install
-```
-
-Copy the example environment file:
-
-```bash
+npx playwright install chromium
 cp .env.example .env
-```
-
-Set these values in `.env`:
-
-```dotenv
-CONTENTFUL_SPACE_ID=your_space_id
-CONTENTFUL_DELIVERY_TOKEN=your_delivery_access_token
-CONTENTFUL_MANAGEMENT_TOKEN=your_management_access_token
-```
-
-The delivery token is used by the website to fetch published content. The
-management token is only needed when importing the included Contentful setup.
-Do not commit `.env` or any access tokens.
-
-Start the development server:
-
-```bash
 npm run dev
 ```
 
-## Build and deployment
+Production content uses `CONTENTFUL_SPACE_ID`, `CONTENTFUL_DELIVERY_TOKEN`, and
+`CONTENTFUL_ENVIRONMENT`. Preview routes reuse `CONTENTFUL_SPACE_ID` when
+`PUBLIC_CONTENTFUL_SPACE_ID` is omitted, but require a separate
+`PUBLIC_CONTENTFUL_PREVIEW_TOKEN` because draft requests run in the browser.
+After changing these values, restart the development server so Astro can embed
+the updated preview configuration.
 
-Create a production build in `dist`:
-
-```bash
-npm run build
-```
-
-Deploy the build to the `gh-pages` branch and configure the custom domain as
-`stagecoffee.com`:
+Create the preview password hash without storing the password in the repository:
 
 ```bash
-npm run deploy
+printf '%s' 'your shared password' | shasum -a 256
 ```
 
-Deployment requires permission to push to the GitHub repository and should be
-run with the production Contentful environment variables configured locally.
+Put only the resulting hash in `PUBLIC_PREVIEW_PASSWORD_HASH`.
 
-## Contentful setup
+> [!CAUTION]
+> The preview gate is a convenience deterrent, not access control. Its password
+> hash and Contentful Preview API token are shipped to the browser and can be
+> extracted. Draft website content is intentionally treated as low sensitivity.
 
-The `contentful/export.json` file contains an export of the expected Contentful
-content model and initial content. To import it into the space configured in
-`.env`, run:
+## Commands
 
 ```bash
-npm run setup
+npm run dev          # local Astro server
+npm run build        # static production build in dist/
+npm run check        # Astro and TypeScript diagnostics
+npm test             # unit tests
+npm run test:e2e     # desktop and mobile browser tests
+npm run format:check # formatting check
+npm run contentful:setup-admin # create and install the private Website Admin app
+npm run contentful:setup-home-menu # add the Menu section to the homepage order
+npm run contentful:setup-menu # create the Food Menu model and draft
+npm run contentful:setup-coffee # create the Coffee model and placeholder draft
+npm run contentful:publish-coffees # update and publish the current coffee list
 ```
 
-This operation uses the Contentful Management API and can modify the configured
-space, so confirm the target space before running it.
+## Routes
+
+| Published  | Draft preview      |
+| ---------- | ------------------ |
+| `/`        | `/preview`         |
+| `/events/` | `/preview/events/` |
+| `/jobs/`   | `/preview/jobs/`   |
+| `/menu`    | `/preview/menu`    |
+| `/coffee`  | `/preview/coffee`  |
+
+Production routes contain published Contentful content in their generated HTML.
+Preview routes fetch saved drafts from `preview.contentful.com` after the shared
+password is entered and refresh their content on every page load.
+
+## Website admin
+
+`/admin` opens a mobile-friendly coffee and food menu editor inside Contentful.
+Contentful handles authentication, so every staff member must have their own
+account and membership of the Stage space. Updates are made with the signed-in
+user's permissions and remain attributed to that user in Contentful.
+
+The editor can create, edit and immediately publish coffees. Removing a coffee
+unpublishes and archives it; archived entries remain available for restoration.
+The Food menu tab edits the introduction and the menu itself on the existing
+`foodMenu` entry. The menu uses Markdown: `##` creates section headings, `###`
+creates dish headings, `*text*` creates italic allergen information, and
+`**text**` creates highlighted notes. The existing Contentful webhook rebuilds
+the public site after publishing.
+
+The authenticated Page app URL uses Contentful's current `/apps/app_installations/`
+route:
+
+```text
+https://app.contentful.com/spaces/{space}/environments/{environment}/apps/app_installations/{app-id}/
+```
+
+To create or update the private Page app, set a valid
+`CONTENTFUL_MANAGEMENT_TOKEN` in `.env`, then run:
+
+```bash
+npm run contentful:setup-admin
+```
+
+The command discovers the organization from the configured space, creates the
+`Stage Website Admin` app definition with `https://stagecoffee.com/admin` as its
+source, and installs it in the configured environment. Copy the reported app ID
+into `PUBLIC_CONTENTFUL_ADMIN_APP_ID` locally and into the GitHub repository
+variable `CONTENTFUL_ADMIN_APP_ID`. The app ID is public; no management token is
+included in the browser bundle.
+
+For local iframe development, set `CONTENTFUL_ADMIN_APP_SRC` to the local HTTPS
+URL exposed to Contentful and rerun the setup command. Direct visits to `/admin`
+redirect to the authenticated Contentful Page app; the editor itself renders
+only in Contentful's app frame.
+
+## GitHub Pages configuration
+
+Set GitHub Pages to use **GitHub Actions**, then configure these repository
+variables:
+
+- `CONTENTFUL_SPACE_ID`
+- `CONTENTFUL_ENVIRONMENT` (normally `master`)
+- `CONTENTFUL_ADMIN_APP_ID`
+
+Configure these repository secrets:
+
+- `CONTENTFUL_DELIVERY_TOKEN`
+- `CONTENTFUL_PREVIEW_TOKEN`
+- `PREVIEW_PASSWORD_HASH`
+
+The workflow in `.github/workflows/pages.yml` validates pull requests and deploys
+`main`, manual runs, and `contentful-publish` repository dispatches. Deployment
+concurrency prevents an older build from replacing a newer content update.
+
+## Contentful publishing webhook
+
+Create a fine-grained GitHub token scoped only to `stage-coffee/website` with the
+minimum permission required to create a repository dispatch. In Contentful,
+create a webhook for entry and asset publish, unpublish, and deletion events:
+
+- Method: `POST`
+- URL: `https://api.github.com/repos/stage-coffee/website/dispatches`
+- Header: `Accept: application/vnd.github+json`
+- Header: `Authorization: Bearer YOUR_FINE_GRAINED_TOKEN`
+- Header: `X-GitHub-Api-Version: 2022-11-28`
+- Body: `{ "event_type": "contentful-publish" }`
+
+Store the token only in Contentful's webhook configuration. Do not add it to
+this repository.
+
+Configure Contentful preview URLs to point homepage/banner entries to
+`https://stagecoffee.com/preview`, events to `/preview/events/`, jobs to
+`/preview/jobs/`, the Food Menu entry to `/preview/menu`, and coffee entries to
+`/preview/coffee`.
+
+## Content model
+
+The site preserves the existing Contentful types:
+
+- `websiteOrder`: ordered homepage content and contact-form introduction
+- `banner`: hero images
+- `events`: event name, description, image, start time, and end time
+- `job`: position, description, and application link
+- `foodMenu`: an internal name, optional banner image, Long Text introduction,
+  and staff-editable Markdown menu
+- `coffee`: coffee name, roaster, tasting notes, origin, region,
+  altitude, producer, farm, varietal, optional process, caffeine status, and
+  repeatable price options, plus independent Espresso, Batch, Pour Over, and
+  Retail section flags
+
+To create the Food Menu model and initial unpublished menu, put a valid
+`CONTENTFUL_MANAGEMENT_TOKEN` in `.env` and run
+`npm run contentful:setup-menu`. The command discovers the default locale,
+publishes the content model, configures Contentful's Markdown editor, and safely
+migrates legacy Rich Text into the new Long Text field before removing the old
+field. Existing published menus remain published.
+
+`npm run contentful:setup-coffee` creates or updates and publishes the Coffee
+content model, then creates the seed coffees as unpublished entries. The
+command is idempotent and does not overwrite existing entries.
+
+Content mapping is defensive: missing entries render useful empty states rather
+than breaking the entire build. Events remain listed until their end time.
