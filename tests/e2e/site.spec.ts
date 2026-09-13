@@ -42,7 +42,7 @@ test('homepage menu tiles remain side by side and link to both menus', async ({
   await expect(menuHeading).toHaveCSS('text-align', 'left')
   const retailSection = page.locator('.home-retail')
   await expect(
-    retailSection.getByRole('heading', { name: 'Coffee at home' })
+    retailSection.getByRole('heading', { name: 'Coffee at Home' })
   ).toBeVisible()
   await expect(retailSection.getByText(/whole bean or ground/)).toBeVisible()
   await expect(

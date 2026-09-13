@@ -5,7 +5,7 @@ export default function HomeLocation() {
     <section className="home-location" aria-labelledby="home-location-heading">
       <div className="home-location-panel section-shell">
         <div className="home-location-copy">
-          <h2 id="home-location-heading">Our corner</h2>
+          <h2 id="home-location-heading">Our Corner</h2>
           <p>
             Our historic building from the 1860s is nestled on the corner of
             Great George Street and Oxford Row, with a view of the striking

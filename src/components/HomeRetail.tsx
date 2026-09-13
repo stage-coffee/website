@@ -8,7 +8,7 @@ export default function HomeRetail() {
     <section className="home-retail" aria-labelledby="home-retail-heading">
       <div className="home-retail-panel section-shell">
         <div className="home-retail-copy">
-          <h2 id="home-retail-heading">Coffee at home</h2>
+          <h2 id="home-retail-heading">Coffee at Home</h2>
           <p>
             Take home a bag of coffee from our retail shelf, available whole
             bean or ground to suit your brew method.
@@ -16,8 +16,8 @@ export default function HomeRetail() {
           <p>
             We also stock a range of home brewing equipment, including Hoop,
             AeroPress, Chemex and Toddy brewers, along with V60 and other
-            filters, kettles, grinders, KeepCups and other essentials for your
-            home coffee setup.
+            filters, kettles, grinders, reusable coffee cups and other
+            essentials for your home coffee setup.
           </p>
         </div>
         <div className="home-retail-media">

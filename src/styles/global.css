@@ -287,10 +287,6 @@ p {
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
-.home-hours-list > div:last-child dd {
-  color: var(--blue);
-  font-weight: 700;
-}
 .home-hours-media {
   aspect-ratio: 16 / 10;
   overflow: hidden;
@@ -996,7 +992,7 @@ p {
 }
 
 .contact-section {
-  padding-block: clamp(4rem, 9vw, 8rem);
+  padding-block: clamp(0.75rem, 2vw, 1.5rem);
 }
 .contact-card {
   display: grid;
@@ -1064,7 +1060,7 @@ p {
   grid-template-columns: 0.7fr 1.3fr;
   gap: clamp(2rem, 7vw, 7rem);
   align-items: center;
-  padding-block: clamp(4rem, 9vw, 8rem);
+  padding-block: clamp(0.75rem, 2vw, 1.5rem);
 }
 .visit-copy h2 {
   max-width: 9ch;
