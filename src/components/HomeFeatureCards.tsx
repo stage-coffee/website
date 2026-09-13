@@ -17,7 +17,7 @@ const featureDetails: FeatureDetails[] = [
     imageSide: 'right',
     imageAlt: 'Board games available to play at Stage',
     image: {
-      url: 'https://images.ctfassets.net/cccc6mdhxqr5/3K0XmonKnvlmb8fEckqdet/15bc8bbd054cf56eea24ac649c10ca8a/games.jpg',
+      url: 'https://images.ctfassets.net/cccc6mdhxqr5/3K0XmonKnvlmb8fEckqdet/338b9965a480d899ae279a2c20a4f015/cosydownstairs.jpg',
       title: 'Board games at Stage',
       width: 1352,
       height: 760,
