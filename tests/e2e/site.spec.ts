@@ -11,20 +11,171 @@ test('public routes render useful headings and metadata', async ({ page }) => {
   }
 })
 
-test('admin route is excluded from indexing and fails closed before setup', async ({
+test('find us section includes walking and cycling information', async ({
   page,
 }) => {
-  await page.goto('/admin')
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-    'content',
-    'noindex, nofollow'
+  await page.goto('/')
+  const findUs = page.locator('.visit-section')
+  await expect(findUs.getByRole('heading', { name: 'Find us' })).toBeVisible()
+  await expect(findUs.getByText('5-minute walk')).toBeVisible()
+  await expect(findUs.getByText('Leeds City Museum')).toBeVisible()
+  await expect(findUs.getByText('10-minute walk')).toBeVisible()
+  await expect(findUs.getByText('Cycle parking is available.')).toBeVisible()
+  const [findUsWidth, homepageCardWidth] = await Promise.all([
+    findUs.evaluate((element) => element.getBoundingClientRect().width),
+    page
+      .locator('.home-introduction-panel')
+      .evaluate((element) => element.getBoundingClientRect().width),
+  ])
+  expect(Math.abs(findUsWidth - homepageCardWidth)).toBeLessThan(1)
+})
+
+test('homepage menu tiles remain side by side and link to both menus', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await expect(
+    page.getByRole('heading', { name: 'Stage Espresso' }).first()
+  ).toBeVisible()
+  const menuHeading = page.getByRole('heading', { name: 'Our Menu' })
+  await expect(menuHeading).toBeVisible()
+  await expect(menuHeading).toHaveCSS('text-align', 'left')
+  const retailSection = page.locator('.home-retail')
+  await expect(
+    retailSection.getByRole('heading', { name: 'Coffee at home' })
+  ).toBeVisible()
+  await expect(retailSection.getByText(/whole bean or ground/)).toBeVisible()
+  await expect(
+    retailSection.getByText(/AeroPress, Chemex and Toddy/)
+  ).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Opening Hours' })
+  ).toHaveCount(1)
+  await expect(page.getByText('Monday to Friday')).toBeVisible()
+  await expect(page.getByText('07:30 – 15:30')).toBeVisible()
+  await expect(page.getByText('Saturday', { exact: true })).toBeVisible()
+  await expect(page.getByText('10:00 – 15:30')).toBeVisible()
+  await expect(page.getByText('Sunday', { exact: true })).toBeVisible()
+  await expect(page.getByText('Closed', { exact: true })).toBeVisible()
+  await expect(
+    page.locator('.home-location').getByText(/corner of Great George Street/)
+  ).toBeVisible()
+  await expect(
+    page.getByAltText('Decorative etched glass in the historic Stage building')
+  ).toBeVisible()
+  const boardGames = page.locator('.home-feature').filter({
+    has: page.getByRole('heading', { name: 'Board Games' }),
+  })
+  const dogFriendly = page.locator('.home-feature').filter({
+    has: page.getByRole('heading', { name: 'Dog Friendly' }),
+  })
+  await expect(boardGames).toHaveCount(1)
+  await expect(dogFriendly).toHaveCount(1)
+  await expect(boardGames.getByText(/grab a game/)).toBeVisible()
+  await expect(boardGames.locator('img')).toHaveAttribute(
+    'src',
+    /3K0XmonKnvlmb8fEckqdet/
   )
+  await expect(dogFriendly.getByText(/dogs are welcome/)).toBeVisible()
   await expect(
-    page.getByRole('heading', { name: 'Coffee admin' })
-  ).toBeVisible()
-  await expect(
-    page.getByText('The Contentful admin app has not been configured yet.')
-  ).toBeVisible()
+    page.locator('.editorial-row').filter({
+      has: page.getByRole('heading', { name: 'Stage Espresso' }),
+    })
+  ).toHaveCount(0)
+
+  if ((page.viewportSize()?.width ?? 0) >= 1024) {
+    const [hoursImage, hoursCopy, retailImage, retailCopy] = await Promise.all([
+      page.locator('.home-hours-media').boundingBox(),
+      page.locator('.home-hours-copy').boundingBox(),
+      page.locator('.home-retail-media').boundingBox(),
+      page.locator('.home-retail-copy').boundingBox(),
+    ])
+    const [gamesImage, gamesCopy, dogsImage, dogsCopy] = await Promise.all([
+      boardGames.locator('.home-feature-media').boundingBox(),
+      boardGames.locator('.home-feature-copy').boundingBox(),
+      dogFriendly.locator('.home-feature-media').boundingBox(),
+      dogFriendly.locator('.home-feature-copy').boundingBox(),
+    ])
+    expect(hoursImage!.x).toBeLessThan(hoursCopy!.x)
+    expect(retailImage!.x).toBeGreaterThan(retailCopy!.x)
+    expect(gamesImage!.x).toBeGreaterThan(gamesCopy!.x)
+    expect(dogsImage!.x).toBeLessThan(dogsCopy!.x)
+  }
+  const tiles = page.locator('.home-menu-tile')
+  await expect(tiles).toHaveCount(2)
+  await expect(tiles.nth(0)).toHaveAttribute('href', '/coffee')
+  await expect(tiles.nth(1)).toHaveAttribute('href', '/menu')
+  await expect(tiles.locator('span')).toHaveText(['Coffee', 'Food'])
+
+  const [coffeeBox, foodBox] = await Promise.all([
+    tiles.nth(0).boundingBox(),
+    tiles.nth(1).boundingBox(),
+  ])
+  expect(coffeeBox).not.toBeNull()
+  expect(foodBox).not.toBeNull()
+  expect(Math.abs(coffeeBox!.width - foodBox!.width)).toBeLessThan(1)
+  expect(Math.abs(coffeeBox!.y - foodBox!.y)).toBeLessThan(1)
+
+  const homepageCardBox = await page
+    .locator('.home-introduction-panel')
+    .boundingBox()
+  expect(homepageCardBox).not.toBeNull()
+  expect(Math.abs(coffeeBox!.x - homepageCardBox!.x)).toBeLessThan(1)
+  expect(
+    Math.abs(
+      foodBox!.x +
+        foodBox!.width -
+        (homepageCardBox!.x + homepageCardBox!.width)
+    )
+  ).toBeLessThan(1)
+
+  for (const selector of [
+    '.home-introduction-panel',
+    '.home-menu-tile',
+    '.home-retail-panel',
+    '.home-hours-panel',
+    '.home-location-panel',
+  ]) {
+    await expect(page.locator(selector).first()).toHaveCSS('box-shadow', 'none')
+  }
+
+  const sectionWidths = await Promise.all(
+    ['.home-introduction-panel', '.home-menu-inner', '.home-hours-panel'].map(
+      (selector) =>
+        page
+          .locator(selector)
+          .evaluate((element) => element.getBoundingClientRect().width)
+    )
+  )
+  expect(Math.max(...sectionWidths) - Math.min(...sectionWidths)).toBeLessThan(
+    1
+  )
+})
+
+test('admin route is excluded from indexing and redirects only when configured', async ({
+  page,
+  request,
+}) => {
+  const response = await request.get('/admin')
+  const html = await response.text()
+  expect(html).toContain('content="noindex, nofollow"')
+
+  const configured = html.includes('/apps/app_installations/')
+  await page.route('https://app.contentful.com/**', (route) =>
+    route.fulfill({ contentType: 'text/html', body: '<h1>Contentful</h1>' })
+  )
+  await page.goto('/admin')
+
+  if (configured) {
+    await expect(page).toHaveURL(/app\.contentful\.com\/.+app_installations/)
+  } else {
+    await expect(
+      page.getByRole('heading', { name: 'Website admin' })
+    ).toBeVisible()
+    await expect(
+      page.getByText('The Contentful admin app has not been configured yet.')
+    ).toBeVisible()
+  }
 })
 
 test('preview content is gated and excluded from indexing', async ({
@@ -85,6 +236,42 @@ test('preview content is gated and excluded from indexing', async ({
                       },
                     },
                   },
+                  {
+                    sys: { id: 'draft-menu-section' },
+                    fields: {
+                      title: 'Menu',
+                      text: {
+                        nodeType: 'document',
+                        data: {},
+                        content: [
+                          {
+                            nodeType: 'paragraph',
+                            data: {},
+                            content: [
+                              {
+                                nodeType: 'text',
+                                value: 'Breakfast and lunch, made to order.',
+                                marks: [],
+                                data: {},
+                              },
+                            ],
+                          },
+                          {
+                            nodeType: 'paragraph',
+                            data: {},
+                            content: [
+                              {
+                                nodeType: 'text',
+                                value: '[[menu]]',
+                                marks: [],
+                                data: {},
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                    },
+                  },
                 ],
               },
             },
@@ -106,24 +293,19 @@ test('preview content is gated and excluded from indexing', async ({
                   sys: { id: 'draft-menu' },
                   fields: {
                     name: 'Main food menu',
-                    content: {
-                      nodeType: 'document',
-                      data: {},
-                      content: [
-                        {
-                          nodeType: 'heading-2',
-                          data: {},
-                          content: [
-                            {
-                              nodeType: 'text',
-                              value: 'Draft menu dish — £5.95',
-                              marks: [],
-                              data: {},
-                            },
-                          ],
+                    intro:
+                      'Fresh pastries and vegan cakes, made in-house daily.',
+                    bannerImage: {
+                      fields: {
+                        title: 'Fresh food at Stage',
+                        file: {
+                          url: '//images.ctfassets.net/test/menu-banner.jpg',
+                          details: { image: { width: 1600, height: 700 } },
                         },
-                      ],
+                      },
                     },
+                    contentMarkdown:
+                      '## Draft menu\n\n### Draft menu dish — £5.95\n\n*Allergens: Gluten.*',
                   },
                 },
               ]
@@ -184,10 +366,9 @@ test('preview content is gated and excluded from indexing', async ({
   await expect(
     page.getByRole('navigation').getByRole('link', { name: 'Events' })
   ).toHaveCount(0)
-  await expect(page.getByRole('link', { name: 'Menu' })).toHaveAttribute(
-    'href',
-    '/preview/menu'
-  )
+  await expect(
+    page.getByRole('link', { name: 'Menu', exact: true })
+  ).toHaveAttribute('href', '/preview/menu')
   await expect(
     page.getByRole('link', { name: 'Coffee', exact: true })
   ).toHaveAttribute('href', '/preview/coffee')
@@ -209,6 +390,17 @@ test('preview content is gated and excluded from indexing', async ({
   await expect(
     page.getByRole('link', { name: /Draft preview event/ })
   ).toHaveAttribute('href', '/preview/events')
+  await expect(
+    page.locator('.editorial-row-text-only .home-menu-link')
+  ).toHaveAttribute('href', '/preview/menu')
+  await expect(page.locator('.home-menu-tile').nth(0)).toHaveAttribute(
+    'href',
+    '/preview/coffee'
+  )
+  await expect(page.locator('.home-menu-tile').nth(1)).toHaveAttribute(
+    'href',
+    '/preview/menu'
+  )
   expect(previewRequests).toBe(6)
 
   await page.reload()
@@ -218,11 +410,28 @@ test('preview content is gated and excluded from indexing', async ({
   await expect(page.getByLabel('Password')).toHaveCount(0)
   expect(previewRequests).toBe(12)
 
-  await page.getByRole('link', { name: 'Menu' }).click()
+  await page.getByRole('link', { name: 'Menu', exact: true }).click()
   await expect(page).toHaveURL(/\/preview\/menu$/)
   await expect(
     page.getByRole('heading', { name: 'Draft menu dish — £5.95' })
   ).toBeVisible()
+  await expect(
+    page.getByText('Fresh pastries and vegan cakes, made in-house daily.')
+  ).toBeVisible()
+  await expect(page.locator('.menu-banner img')).toHaveAttribute(
+    'alt',
+    'Fresh food at Stage'
+  )
+  const menuSheetPadding = await page
+    .locator('.menu-sheet')
+    .evaluate((sheet) => {
+      const styles = window.getComputedStyle(sheet)
+      return [styles.paddingTop, styles.paddingRight, styles.paddingBottom]
+    })
+  expect(new Set(menuSheetPadding).size).toBe(1)
+  await expect(
+    page.locator('.menu-content em').filter({ hasText: 'Allergens: Gluten.' })
+  ).toHaveCSS('font-style', 'italic')
   expect(previewRequests).toBe(18)
   await expect(
     page.getByRole('link', { name: 'Home', exact: true })
@@ -231,8 +440,8 @@ test('preview content is gated and excluded from indexing', async ({
   await page.getByRole('link', { name: 'Coffee', exact: true }).click()
   await expect(page).toHaveURL(/\/preview\/coffee$/)
   await expect(page.locator('.coffee-group > h2')).toHaveText([
-    'House Espresso',
-    'House Batch',
+    'Espresso',
+    'Batch',
     'Pour Over',
     'Retail',
   ])
@@ -244,7 +453,7 @@ test('preview content is gated and excluded from indexing', async ({
     'Draft Decaf',
   ])
   const espressoSection = page.locator('.coffee-group').filter({
-    has: page.getByRole('heading', { name: 'House Espresso' }),
+    has: page.getByRole('heading', { name: 'Espresso', exact: true }),
   })
   const coffeeCard = espressoSection.locator('.coffee-card').filter({
     has: page.locator('.coffee-card-title', { hasText: 'Draft Coffee' }),
@@ -281,6 +490,16 @@ test('contact form validates locally without sending a message', async ({
   })
   await page.goto('/')
   const form = page.locator('.contact-form')
+  const contactCard = page.locator('.contact-card')
+  const [contactWidth, homepageCardWidth] = await Promise.all([
+    contactCard.evaluate((element) => element.getBoundingClientRect().width),
+    page
+      .locator('.home-introduction-panel')
+      .evaluate((element) => element.getBoundingClientRect().width),
+  ])
+  expect(Math.abs(contactWidth - homepageCardWidth)).toBeLessThan(1)
+  await expect(contactCard).toHaveCSS('background-color', 'rgb(255, 253, 248)')
+  await expect(contactCard).toHaveCSS('box-shadow', 'none')
   await expect(form.locator('input:invalid')).toHaveCount(1)
   await expect(form.locator('textarea:invalid')).toHaveCount(1)
   await form.getByLabel('Your email').fill('hello@example.com')

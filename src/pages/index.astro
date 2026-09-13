@@ -1,6 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Hero from '../components/Hero.astro'
+import HomeFeatureCards from '../components/HomeFeatureCards'
+import HomeIntroduction from '../components/HomeIntroduction'
+import HomeLocation from '../components/HomeLocation'
+import HomeMenuTiles from '../components/HomeMenuTiles'
+import HomeOpeningHours from '../components/HomeOpeningHours'
+import HomeRetail from '../components/HomeRetail'
 import { HomeSections, JobsBanner } from '../components/PageViews'
 import { getProductionContent } from '../lib/contentful'
 
@@ -36,6 +42,12 @@ const cafeSchema = {
       quotedTitle
       introduction="Thoughtfully sourced and carefully made coffee, alongside house baked goods and a fresh, satisfying food menu."
     />
+    <HomeIntroduction />
+    <HomeMenuTiles />
+    <HomeOpeningHours />
+    <HomeRetail />
+    <HomeLocation />
+    <HomeFeatureCards sections={content.homeSections} />
     <JobsBanner jobs={content.jobs} href="/jobs/" />
     <HomeSections sections={content.homeSections} events={content.events} />
   </main>

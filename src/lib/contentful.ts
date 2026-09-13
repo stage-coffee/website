@@ -33,7 +33,9 @@ export type StageJob = {
 export type FoodMenu = {
   id: string
   name: string
-  content: Document | null
+  intro: string
+  bannerImage: ImageAsset | null
+  markdown: string
 }
 
 export type Coffee = {
@@ -293,7 +295,9 @@ export const fetchSiteContent = async (
       ? {
           id: asString(foodMenuEntry.sys?.id, 'food-menu'),
           name: asString(foodMenuEntry.fields?.name, 'Main food menu'),
-          content: asDocument(foodMenuEntry.fields?.content),
+          intro: asString(foodMenuEntry.fields?.intro),
+          bannerImage: imageFrom(foodMenuEntry.fields?.bannerImage),
+          markdown: asString(foodMenuEntry.fields?.contentMarkdown),
         }
       : null,
     coffees: sortCoffees(

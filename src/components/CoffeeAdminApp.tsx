@@ -3,6 +3,7 @@ import type { EntryProps } from 'contentful-management'
 import { useEffect, useMemo, useState, type SyntheticEvent } from 'react'
 import {
   archiveCoffee as archiveCoffeeEntry,
+  adminMobileZoom,
   coffeeEntryStatus,
   coffeeFormFromEntry,
   coffeeFormToFields,
@@ -17,11 +18,22 @@ import {
   type CoffeeEntryLike,
   type CoffeeForm,
 } from '../lib/coffee-admin'
+import {
+  menuBlocksFromMarkdown,
+  menuFieldsFromMarkdown,
+  menuFormFromEntry,
+  menuMarkdownFromBlocks,
+  saveAndPublishMenu,
+  validateMenuForm,
+  type MenuAdminGateway,
+  type MenuForm,
+} from '../lib/menu-admin'
 
 type Props = { adminUrl: string }
 type RawCoffeeEntry = EntryProps<Record<string, unknown>>
 type EditorState = { entry: RawCoffeeEntry | null; initial: string }
 type FieldError = Partial<Record<keyof CoffeeForm | 'sections', string>>
+type AdminSection = 'coffees' | 'menu'
 
 const byUpdatedDate = (first: RawCoffeeEntry, second: RawCoffeeEntry) =>
   new Date(second.sys.updatedAt).getTime() -
@@ -32,7 +44,7 @@ const byUpdatedDate = (first: RawCoffeeEntry, second: RawCoffeeEntry) =>
 
 const errorMessage = (error: unknown) => {
   if (isVersionConflict(error)) {
-    return 'This coffee changed after you opened it. Your changes were not overwritten. Reload it and review the latest version.'
+    return 'This content changed after you opened it. Your changes were not overwritten. Reload it and review the latest version.'
   }
   if (error && typeof error === 'object') {
     const candidate = error as {
@@ -95,6 +107,37 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
   const [form, setForm] = useState<CoffeeForm>(emptyCoffeeForm)
   const [errors, setErrors] = useState<FieldError>({})
   const [standalone, setStandalone] = useState(false)
+  const [section, setSection] = useState<AdminSection>('coffees')
+  const [menuEntry, setMenuEntry] = useState<RawCoffeeEntry | null>(null)
+  const [menuForm, setMenuForm] = useState<MenuForm>({
+    name: 'Main food menu',
+    intro: '',
+    blocks: [],
+  })
+  const [menuIntro, setMenuIntro] = useState('')
+  const [menuMarkdown, setMenuMarkdown] = useState('')
+  const [menuInitial, setMenuInitial] = useState('')
+  const [menuLoading, setMenuLoading] = useState(true)
+  const [menuValidationError, setMenuValidationError] = useState('')
+
+  useEffect(() => {
+    const root = document.documentElement
+    const updateScale = () => {
+      root.style.setProperty(
+        '--admin-mobile-zoom',
+        String(adminMobileZoom(window.innerWidth, window.screen.width))
+      )
+    }
+
+    updateScale()
+    window.addEventListener('resize', updateScale)
+    window.visualViewport?.addEventListener('resize', updateScale)
+    return () => {
+      window.removeEventListener('resize', updateScale)
+      window.visualViewport?.removeEventListener('resize', updateScale)
+      root.style.removeProperty('--admin-mobile-zoom')
+    }
+  }, [])
 
   const loadEntries = async (app: PageAppSDK) => {
     setLoading(true)
@@ -128,6 +171,34 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
     }
   }
 
+  const loadMenu = async (app: PageAppSDK) => {
+    setMenuLoading(true)
+    try {
+      const result = await app.cma.entry.getMany<Record<string, unknown>>({
+        query: {
+          content_type: 'foodMenu',
+          limit: 1,
+          'sys.archivedAt[exists]': false,
+        },
+      })
+      const entry = result.items[0] || null
+      const values = menuFormFromEntry(
+        entry as CoffeeEntryLike | null,
+        app.locales.default
+      )
+      const markdown = menuMarkdownFromBlocks(values.blocks)
+      setMenuEntry(entry)
+      setMenuForm(values)
+      setMenuIntro(values.intro)
+      setMenuMarkdown(markdown)
+      setMenuInitial(JSON.stringify({ intro: values.intro, markdown }))
+    } catch (loadError) {
+      setError(errorMessage(loadError))
+    } finally {
+      setMenuLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (window.self === window.top) {
       if (adminUrl) window.location.replace(adminUrl)
@@ -138,11 +209,15 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
     init<PageAppSDK>((app) => {
       setSdk(app)
       void loadEntries(app)
+      void loadMenu(app)
     })
   }, [adminUrl])
 
   const locale = sdk?.locales.default || 'en-US'
-  const dirty = editor ? JSON.stringify(form) !== editor.initial : false
+  const coffeeDirty = editor ? JSON.stringify(form) !== editor.initial : false
+  const menuDirty =
+    JSON.stringify({ intro: menuIntro, markdown: menuMarkdown }) !== menuInitial
+  const dirty = coffeeDirty || menuDirty
 
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => {
@@ -184,11 +259,49 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const closeEditor = () => {
-    if (dirty && !window.confirm('Discard your unsaved changes?')) return
+  const closeEditor = async () => {
+    if (!sdk) return
+    if (dirty) {
+      const confirmed = await sdk.dialogs.openConfirm({
+        title: 'Discard unsaved changes?',
+        message: 'Your changes to this coffee will be lost.',
+        confirmLabel: 'Discard changes',
+        cancelLabel: 'Keep editing',
+        intent: 'negative',
+      })
+      if (!confirmed) return
+    }
     setEditor(null)
     setErrors({})
     setError('')
+  }
+
+  const changeSection = async (nextSection: AdminSection) => {
+    if (nextSection === section) return
+    if (dirty && sdk) {
+      const confirmed = await sdk.dialogs.openConfirm({
+        title: 'Discard unsaved changes?',
+        message: 'Your changes will be lost when you change admin section.',
+        confirmLabel: 'Discard changes',
+        cancelLabel: 'Keep editing',
+        intent: 'negative',
+      })
+      if (!confirmed) return
+      if (editor) setEditor(null)
+      if (menuInitial) {
+        const initial = JSON.parse(menuInitial) as {
+          intro: string
+          markdown: string
+        }
+        setMenuIntro(initial.intro)
+        setMenuMarkdown(initial.markdown)
+      }
+    }
+    setErrors({})
+    setMenuValidationError('')
+    setError('')
+    setNotice('')
+    setSection(nextSection)
   }
 
   const requireAccess = async (action: CoffeeAdminAction, entity: object) => {
@@ -239,6 +352,82 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
     }
   }
 
+  const menuGateway = (): MenuAdminGateway<RawCoffeeEntry> => {
+    if (!sdk) throw new Error('The Contentful app is not connected.')
+    return {
+      get: (entryId) => sdk.cma.entry.get<Record<string, unknown>>({ entryId }),
+      create: (fields) =>
+        sdk.cma.entry.create({ contentTypeId: 'foodMenu' }, { fields }),
+      update: (entry, fields) =>
+        sdk.cma.entry.update(
+          { entryId: entry.sys.id },
+          { ...entry, fields: { ...entry.fields, ...fields } }
+        ),
+      publish: (entry) =>
+        sdk.cma.entry.publish({ entryId: entry.sys.id }, entry),
+      requireAccess,
+    }
+  }
+
+  const resetMenu = () => {
+    if (!menuInitial) return
+    const initial = JSON.parse(menuInitial) as {
+      intro: string
+      markdown: string
+    }
+    setMenuIntro(initial.intro)
+    setMenuMarkdown(initial.markdown)
+    setMenuValidationError('')
+    setError('')
+  }
+
+  const saveMenu = async (event: SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!sdk) return
+    const nextForm = {
+      ...menuForm,
+      intro: menuIntro,
+      blocks: menuBlocksFromMarkdown(menuMarkdown),
+    }
+    const validationError = validateMenuForm(nextForm)
+    setMenuValidationError(validationError)
+    if (validationError) {
+      setError('Check the food menu before publishing.')
+      return
+    }
+
+    setBusy(true)
+    setError('')
+    setNotice('')
+    try {
+      const published = await saveAndPublishMenu(
+        menuGateway(),
+        menuEntry,
+        menuFieldsFromMarkdown(
+          nextForm.name,
+          nextForm.intro,
+          menuMarkdown,
+          locale
+        )
+      )
+      const values = menuFormFromEntry(published as CoffeeEntryLike, locale)
+      const markdown = menuMarkdownFromBlocks(values.blocks)
+      setMenuEntry(published)
+      setMenuForm(values)
+      setMenuIntro(values.intro)
+      setMenuMarkdown(markdown)
+      setMenuInitial(JSON.stringify({ intro: values.intro, markdown }))
+      sdk.notifier.success('Food menu published')
+      setNotice(
+        'The food menu was published. The website is rebuilding and may take a few minutes to update.'
+      )
+    } catch (saveError) {
+      setError(errorMessage(saveError))
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const save = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!sdk || !editor) return
@@ -276,12 +465,15 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
   const archive = async (entry: RawCoffeeEntry) => {
     if (!sdk) return
     const values = coffeeFormFromEntry(entry as CoffeeEntryLike, locale)
-    if (
-      !window.confirm(
-        `Remove ${values.coffeeName} from the website? It will be unpublished and archived, but can be restored.`
-      )
-    )
-      return
+    const confirmed = await sdk.dialogs.openConfirm({
+      title: `Remove ${values.coffeeName || 'this coffee'}?`,
+      message:
+        'It will be unpublished and archived, but it can be restored later.',
+      confirmLabel: 'Remove coffee',
+      cancelLabel: 'Keep coffee',
+      intent: 'negative',
+    })
+    if (!confirmed) return
 
     setBusy(true)
     setError('')
@@ -321,7 +513,7 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
     return (
       <main className="admin-standalone">
         <div className="admin-empty-card">
-          <h1>Coffee admin</h1>
+          <h1>Website admin</h1>
           <p>
             The Contentful admin app has not been configured yet. Add the public
             app ID and rebuild the website.
@@ -334,7 +526,7 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
   if (!sdk) {
     return (
       <main className="admin-standalone" aria-live="polite">
-        <div className="admin-empty-card">Opening secure coffee admin…</div>
+        <div className="admin-empty-card">Opening secure website admin…</div>
       </main>
     )
   }
@@ -352,11 +544,13 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
         <div>
           <p className="admin-kicker">Stage Espresso &amp; Brewbar</p>
           <h1>
-            {editor
-              ? editor.entry
-                ? 'Edit coffee'
-                : 'New coffee'
-              : 'Coffee admin'}
+            {section === 'menu'
+              ? 'Food menu'
+              : editor
+                ? editor.entry
+                  ? 'Edit coffee'
+                  : 'New coffee'
+                : 'Coffees'}
           </h1>
         </div>
         <div className="admin-user">
@@ -364,6 +558,23 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
           {roleNames ? <span>{roleNames}</span> : null}
         </div>
       </header>
+
+      <nav className="admin-section-tabs" aria-label="Website admin sections">
+        <button
+          type="button"
+          aria-current={section === 'coffees' ? 'page' : undefined}
+          onClick={() => void changeSection('coffees')}
+        >
+          Coffees
+        </button>
+        <button
+          type="button"
+          aria-current={section === 'menu' ? 'page' : undefined}
+          onClick={() => void changeSection('menu')}
+        >
+          Food menu
+        </button>
+      </nav>
 
       {error ? (
         <div className="admin-message admin-message-error" role="alert">
@@ -376,7 +587,92 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
         </div>
       ) : null}
 
-      {editor ? (
+      {section === 'menu' ? (
+        menuLoading ? (
+          <p aria-live="polite">Loading food menu…</p>
+        ) : (
+          <form className="admin-form admin-menu-form" onSubmit={saveMenu}>
+            <section className="admin-form-section">
+              <div className="admin-menu-heading">
+                <div>
+                  <h2>Menu content</h2>
+                  <p className="admin-help">
+                    Use Markdown to format the menu. Leave a blank line between
+                    each piece of content.
+                  </p>
+                </div>
+                {menuEntry ? (
+                  <span
+                    className={`admin-status admin-status-${coffeeEntryStatus(menuEntry as CoffeeEntryLike).toLowerCase()}`}
+                  >
+                    {coffeeEntryStatus(menuEntry as CoffeeEntryLike)}
+                  </span>
+                ) : null}
+              </div>
+
+              <label className="admin-field">
+                <span>Introduction</span>
+                <textarea
+                  className="admin-menu-intro"
+                  rows={5}
+                  value={menuIntro}
+                  onChange={(event) => {
+                    setMenuIntro(event.target.value)
+                    setMenuValidationError('')
+                  }}
+                  spellCheck
+                  required
+                />
+              </label>
+
+              <div className="admin-markdown-guide" aria-label="Markdown help">
+                <code>## Section heading</code>
+                <code>### Dish and price</code>
+                <code>*Allergen information*</code>
+                <code>**Highlighted note**</code>
+                <code>Plain description</code>
+              </div>
+              <label className="admin-field">
+                <span className="visually-hidden">Food menu Markdown</span>
+                <textarea
+                  className="admin-menu-markdown"
+                  rows={28}
+                  value={menuMarkdown}
+                  onChange={(event) => {
+                    setMenuMarkdown(event.target.value)
+                    setMenuValidationError('')
+                  }}
+                  spellCheck
+                  placeholder="## Food&#10;&#10;### Dish name — £5.95&#10;&#10;*Allergens: Gluten.*&#10;&#10;Description of the dish."
+                />
+              </label>
+              {menuValidationError ? (
+                <p className="admin-field-error" role="alert">
+                  {menuValidationError}
+                </p>
+              ) : null}
+            </section>
+
+            <div className="admin-form-actions">
+              <button
+                className="admin-secondary-button"
+                type="button"
+                onClick={resetMenu}
+                disabled={busy || !menuDirty}
+              >
+                Reset changes
+              </button>
+              <button
+                className="admin-primary-button"
+                type="submit"
+                disabled={busy || !menuDirty}
+              >
+                {busy ? 'Publishing…' : 'Save and publish'}
+              </button>
+            </div>
+          </form>
+        )
+      ) : editor ? (
         <form className="admin-form" onSubmit={save}>
           <section className="admin-form-section">
             <h2>Coffee</h2>
@@ -432,8 +728,8 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
             <div className="admin-checkboxes">
               {(
                 [
-                  ['houseEspresso', 'House Espresso'],
-                  ['houseBatch', 'House Batch'],
+                  ['houseEspresso', 'Espresso'],
+                  ['houseBatch', 'Batch'],
                   ['filter', 'Pour Over'],
                   ['retail', 'Retail'],
                 ] as const
@@ -564,7 +860,7 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
             <button
               className="admin-secondary-button"
               type="button"
-              onClick={closeEditor}
+              onClick={() => void closeEditor()}
               disabled={busy}
             >
               Cancel
@@ -627,8 +923,8 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
                 locale
               )
               const sections = [
-                values.houseEspresso && 'House Espresso',
-                values.houseBatch && 'House Batch',
+                values.houseEspresso && 'Espresso',
+                values.houseBatch && 'Batch',
                 values.filter && 'Pour Over',
                 values.retail && 'Retail',
               ].filter(Boolean)
@@ -670,6 +966,7 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
                       <>
                         <button
                           className="admin-secondary-button"
+                          type="button"
                           onClick={() => openEditor(entry)}
                           disabled={busy}
                         >
@@ -677,6 +974,7 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
                         </button>
                         <button
                           className="admin-danger-button"
+                          type="button"
                           onClick={() => void archive(entry)}
                           disabled={busy}
                         >

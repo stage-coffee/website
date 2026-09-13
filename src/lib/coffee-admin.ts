@@ -44,6 +44,24 @@ export type CoffeeAdminGateway<T extends CoffeeEntryLike = CoffeeEntryLike> = {
   requireAccess: (action: CoffeeAdminAction, entry: object) => Promise<void>
 }
 
+export const adminMobileZoom = (
+  layoutWidth: number,
+  screenWidth: number
+): number => {
+  if (
+    !Number.isFinite(layoutWidth) ||
+    !Number.isFinite(screenWidth) ||
+    layoutWidth <= 0 ||
+    screenWidth <= 0 ||
+    screenWidth > 600 ||
+    layoutWidth <= screenWidth * 1.2
+  ) {
+    return 1
+  }
+
+  return Math.min(2, Math.max(1, (layoutWidth / screenWidth) * 0.75))
+}
+
 export class PublishFailedError extends Error {
   cause: unknown
 

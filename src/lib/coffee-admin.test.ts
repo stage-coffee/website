@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  adminMobileZoom,
   archiveCoffee,
   coffeeEntryStatus,
   coffeeFormFromEntry,
@@ -12,6 +13,19 @@ import {
   type CoffeeAdminGateway,
   type CoffeeEntryLike,
 } from './coffee-admin'
+
+describe('coffee admin mobile scaling', () => {
+  it('compensates for Contentful presenting a desktop iframe on a phone', () => {
+    expect(adminMobileZoom(980, 390)).toBeCloseTo(1.8846, 3)
+    expect(adminMobileZoom(1200, 390)).toBe(2)
+  })
+
+  it('does not scale desktop or correctly sized mobile layouts', () => {
+    expect(adminMobileZoom(1200, 1440)).toBe(1)
+    expect(adminMobileZoom(390, 390)).toBe(1)
+    expect(adminMobileZoom(0, 390)).toBe(1)
+  })
+})
 
 const entry = {
   sys: { id: 'coffee', version: 4, publishedVersion: 3 },

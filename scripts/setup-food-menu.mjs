@@ -22,6 +22,8 @@ const env = await parseEnv()
 const space = env.CONTENTFUL_SPACE_ID
 const environment = env.CONTENTFUL_ENVIRONMENT || 'master'
 const token = env.CONTENTFUL_MANAGEMENT_TOKEN
+const menuIntro =
+  'We also offer freshly baked pastries every day, alongside a variety of vegan cakes, cookies and brownies, all made in-house, with gluten-free options available.'
 
 if (!space || !token) {
   throw new Error(
@@ -70,15 +72,33 @@ const contentTypeDefinition = {
       omitted: false,
     },
     {
-      id: 'content',
-      name: 'Menu content',
-      type: 'RichText',
+      id: 'intro',
+      name: 'Introduction',
+      type: 'Text',
       localized: false,
       required: true,
-      validations: [
-        { enabledNodeTypes: ['heading-2', 'heading-3', 'paragraph'] },
-        { enabledMarks: ['bold', 'italic'] },
-      ],
+      validations: [],
+      disabled: false,
+      omitted: false,
+    },
+    {
+      id: 'bannerImage',
+      name: 'Banner image',
+      type: 'Link',
+      linkType: 'Asset',
+      localized: false,
+      required: false,
+      validations: [{ linkMimetypeGroup: ['image'] }],
+      disabled: false,
+      omitted: false,
+    },
+    {
+      id: 'contentMarkdown',
+      name: 'Menu content',
+      type: 'Text',
+      localized: false,
+      required: true,
+      validations: [],
       disabled: false,
       omitted: false,
     },
@@ -145,7 +165,84 @@ if (contentType.status === 404) {
   }
 }
 
-const requiredFields = ['name', 'content']
+const markdownFieldDefinition = contentTypeDefinition.fields.find(
+  (field) => field.id === 'contentMarkdown'
+)
+const introFieldDefinition = contentTypeDefinition.fields.find(
+  (field) => field.id === 'intro'
+)
+const bannerImageFieldDefinition = contentTypeDefinition.fields.find(
+  (field) => field.id === 'bannerImage'
+)
+const existingMarkdownField = contentType.body.fields.find(
+  (field) => field.id === 'contentMarkdown'
+)
+const existingIntroField = contentType.body.fields.find(
+  (field) => field.id === 'intro'
+)
+const existingBannerImageField = contentType.body.fields.find(
+  (field) => field.id === 'bannerImage'
+)
+const normalizedFields = [
+  contentType.body.fields.find((field) => field.id === 'name'),
+  existingIntroField
+    ? {
+        ...existingIntroField,
+        name: 'Introduction',
+        type: 'Text',
+        required: true,
+        disabled: false,
+        omitted: false,
+      }
+    : introFieldDefinition,
+  existingBannerImageField
+    ? {
+        ...existingBannerImageField,
+        name: 'Banner image',
+        type: 'Link',
+        linkType: 'Asset',
+        required: false,
+        validations: [{ linkMimetypeGroup: ['image'] }],
+        disabled: false,
+        omitted: false,
+      }
+    : bannerImageFieldDefinition,
+  existingMarkdownField
+    ? {
+        ...existingMarkdownField,
+        name: 'Menu content',
+        type: 'Text',
+        required: true,
+        disabled: false,
+        omitted: false,
+      }
+    : markdownFieldDefinition,
+  ...contentType.body.fields.filter(
+    (field) =>
+      !['name', 'intro', 'bannerImage', 'contentMarkdown'].includes(field.id)
+  ),
+].filter(Boolean)
+
+if (
+  JSON.stringify(normalizedFields) !== JSON.stringify(contentType.body.fields)
+) {
+  contentType = await request('/content_types/foodMenu', {
+    method: 'PUT',
+    headers: {
+      'X-Contentful-Version': String(contentType.body.sys.version),
+    },
+    body: JSON.stringify({
+      name: contentType.body.name,
+      description: contentType.body.description,
+      displayField: 'name',
+      fields: normalizedFields,
+    }),
+  })
+  contentTypeNeedsPublishing = true
+  console.log('Updated the Food Menu fields')
+}
+
+const requiredFields = ['name', 'intro', 'bannerImage', 'contentMarkdown']
 const existingFields = new Set(contentType.body.fields.map((field) => field.id))
 if (requiredFields.some((field) => !existingFields.has(field))) {
   throw new Error(
@@ -162,6 +259,48 @@ if (
     headers: { 'X-Contentful-Version': String(contentType.body.sys.version) },
   })
   console.log('Published Food Menu content type')
+}
+
+const editorInterface = await request(
+  '/content_types/foodMenu/editor_interface'
+)
+const markdownControl = editorInterface.body.controls?.find(
+  (control) => control.fieldId === 'contentMarkdown'
+)
+const introControl = editorInterface.body.controls?.find(
+  (control) => control.fieldId === 'intro'
+)
+if (
+  markdownControl?.widgetId !== 'markdown' ||
+  markdownControl?.widgetNamespace !== 'builtin' ||
+  introControl?.widgetId !== 'multipleLine' ||
+  introControl?.widgetNamespace !== 'builtin'
+) {
+  const { sys: editorSys, ...editorDefinition } = editorInterface.body
+  editorDefinition.controls = [
+    ...(editorDefinition.controls || []).filter(
+      (control) =>
+        control.fieldId !== 'contentMarkdown' && control.fieldId !== 'intro'
+    ),
+    {
+      fieldId: 'intro',
+      widgetId: 'multipleLine',
+      widgetNamespace: 'builtin',
+      settings: {},
+    },
+    {
+      fieldId: 'contentMarkdown',
+      widgetId: 'markdown',
+      widgetNamespace: 'builtin',
+      settings: {},
+    },
+  ]
+  await request('/content_types/foodMenu/editor_interface', {
+    method: 'PUT',
+    headers: { 'X-Contentful-Version': String(editorSys.version) },
+    body: JSON.stringify(editorDefinition),
+  })
+  console.log('Configured the Contentful Markdown editor')
 }
 
 const text = (value, marks = []) => ({
@@ -232,6 +371,39 @@ const menuDocument = {
   ],
 }
 
+const nodeText = (node) =>
+  typeof node?.value === 'string'
+    ? node.value
+    : Array.isArray(node?.content)
+      ? node.content.map(nodeText).join('')
+      : ''
+
+const nodeMarks = (node) => [
+  ...(Array.isArray(node?.marks)
+    ? node.marks.map((mark) => mark.type).filter(Boolean)
+    : []),
+  ...(Array.isArray(node?.content) ? node.content.flatMap(nodeMarks) : []),
+]
+
+const documentToMarkdown = (document) =>
+  document?.nodeType === 'document' && Array.isArray(document.content)
+    ? document.content
+        .map((node) => {
+          const value = nodeText(node).trim()
+          if (!value) return ''
+          if (node.nodeType === 'heading-2') return `## ${value}`
+          if (node.nodeType === 'heading-3') return `### ${value}`
+          const marks = nodeMarks(node)
+          if (marks.includes('italic')) return `*${value}*`
+          if (marks.includes('bold')) return `**${value}**`
+          return value
+        })
+        .filter(Boolean)
+        .join('\n\n')
+    : ''
+
+const initialMenuMarkdown = documentToMarkdown(menuDocument)
+
 const query = new URLSearchParams({
   content_type: 'foodMenu',
   [`fields.name`]: 'Main food menu',
@@ -248,6 +420,8 @@ if (existingEntries.body.items.length) {
   )
   const content = fields.content?.[locale]
   let removedIntroContent = false
+  let migratedMarkdown = false
+  let addedIntro = false
 
   if (content?.nodeType === 'document' && Array.isArray(content.content)) {
     const plainText = (node) =>
@@ -275,18 +449,41 @@ if (existingEntries.body.items.length) {
     }
   }
 
+  if (typeof fields.contentMarkdown?.[locale] !== 'string') {
+    fields.contentMarkdown = {
+      [locale]: documentToMarkdown(fields.content?.[locale]),
+    }
+    migratedMarkdown = true
+  }
+  if (typeof fields.intro?.[locale] !== 'string') {
+    fields.intro = { [locale]: menuIntro }
+    addedIntro = true
+  }
+
   if (
     removedIntroContent ||
+    migratedMarkdown ||
+    addedIntro ||
     Object.keys(fields).length !== Object.keys(entry.fields).length
   ) {
-    await request(`/entries/${entry.sys.id}`, {
+    const updatedEntry = await request(`/entries/${entry.sys.id}`, {
       method: 'PUT',
       headers: { 'X-Contentful-Version': String(entry.sys.version) },
       body: JSON.stringify({ fields }),
     })
-    console.log('Removed title and availability content from menu draft')
+    if (entry.sys.publishedVersion != null) {
+      await request(`/entries/${entry.sys.id}/published`, {
+        method: 'PUT',
+        headers: {
+          'X-Contentful-Version': String(updatedEntry.body.sys.version),
+        },
+      })
+      console.log('Migrated and republished the Food Menu entry')
+    } else {
+      console.log('Migrated the Food Menu draft to Markdown')
+    }
   } else {
-    console.log('Draft Food Menu entry already exists; no entry changes made')
+    console.log('Food Menu entry already uses Markdown; no changes made')
   }
 } else {
   await request('/entries', {
@@ -295,9 +492,68 @@ if (existingEntries.body.items.length) {
     body: JSON.stringify({
       fields: {
         name: { [locale]: 'Main food menu' },
-        content: { [locale]: menuDocument },
+        intro: { [locale]: menuIntro },
+        contentMarkdown: { [locale]: initialMenuMarkdown },
       },
     }),
   })
   console.log('Created unpublished Food Menu draft entry')
+}
+
+let latestContentType = await request('/content_types/foodMenu')
+const legacyContentField = latestContentType.body.fields.find(
+  (field) => field.id === 'content'
+)
+if (legacyContentField) {
+  if (!legacyContentField.disabled || !legacyContentField.omitted) {
+    latestContentType = await request('/content_types/foodMenu', {
+      method: 'PUT',
+      headers: {
+        'X-Contentful-Version': String(latestContentType.body.sys.version),
+      },
+      body: JSON.stringify({
+        name: latestContentType.body.name,
+        description: latestContentType.body.description,
+        displayField: 'name',
+        fields: latestContentType.body.fields.map((field) =>
+          field.id === 'content'
+            ? {
+                ...field,
+                required: false,
+                disabled: true,
+                omitted: true,
+              }
+            : field
+        ),
+      }),
+    })
+    latestContentType = await request('/content_types/foodMenu/published', {
+      method: 'PUT',
+      headers: {
+        'X-Contentful-Version': String(latestContentType.body.sys.version),
+      },
+    })
+  }
+
+  latestContentType = await request('/content_types/foodMenu', {
+    method: 'PUT',
+    headers: {
+      'X-Contentful-Version': String(latestContentType.body.sys.version),
+    },
+    body: JSON.stringify({
+      name: latestContentType.body.name,
+      description: latestContentType.body.description,
+      displayField: 'name',
+      fields: latestContentType.body.fields.filter(
+        (field) => field.id !== 'content'
+      ),
+    }),
+  })
+  await request('/content_types/foodMenu/published', {
+    method: 'PUT',
+    headers: {
+      'X-Contentful-Version': String(latestContentType.body.sys.version),
+    },
+  })
+  console.log('Removed the legacy Rich Text menu field')
 }

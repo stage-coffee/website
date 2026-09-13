@@ -22,7 +22,8 @@ const space = env.CONTENTFUL_SPACE_ID
 const environment = env.CONTENTFUL_ENVIRONMENT || 'master'
 const token = env.CONTENTFUL_MANAGEMENT_TOKEN
 const configuredAppId = env.PUBLIC_CONTENTFUL_ADMIN_APP_ID
-const appName = 'Stage Coffee Admin'
+const appName = 'Stage Website Admin'
+const previousAppName = 'Stage Coffee Admin'
 const appSource =
   env.CONTENTFUL_ADMIN_APP_SRC || 'https://stagecoffee.com/admin'
 
@@ -65,7 +66,15 @@ if (!organization) {
 const definition = {
   name: appName,
   src: appSource,
-  locations: [{ location: 'page' }],
+  locations: [
+    {
+      location: 'page',
+      navigationItem: {
+        name: 'Website admin',
+        path: '/',
+      },
+    },
+  ],
 }
 
 let app
@@ -82,7 +91,10 @@ if (!app) {
   const collection = await request(
     `/organizations/${organization}/app_definitions?limit=1000`
   )
-  app = collection.body.items.find((candidate) => candidate.name === appName)
+  app = collection.body.items.find(
+    (candidate) =>
+      candidate.name === appName || candidate.name === previousAppName
+  )
 }
 
 if (app) {
@@ -95,7 +107,7 @@ if (app) {
       }
     )
   ).body
-  console.log('Updated the Stage Coffee Admin app definition')
+  console.log(`Updated the ${appName} app definition`)
 } else {
   app = (
     await request(`/organizations/${organization}/app_definitions`, {
@@ -103,7 +115,7 @@ if (app) {
       body: JSON.stringify(definition),
     })
   ).body
-  console.log('Created the Stage Coffee Admin app definition')
+  console.log(`Created the ${appName} app definition`)
 }
 
 await request(
@@ -117,5 +129,5 @@ await request(
 console.log(`Installed the app in ${space}/${environment}`)
 console.log(`PUBLIC_CONTENTFUL_ADMIN_APP_ID=${app.sys.id}`)
 console.log(
-  `Admin URL: https://app.contentful.com/spaces/${space}/environments/${environment}/app_installations/${app.sys.id}/`
+  `Admin URL: https://app.contentful.com/spaces/${space}/environments/${environment}/apps/app_installations/${app.sys.id}/`
 )

@@ -127,7 +127,7 @@ describe('fetchSiteContent', () => {
                     {
                       fields: {
                         name: 42,
-                        content: 'not rich text',
+                        contentMarkdown: 42,
                       },
                     },
                   ]
@@ -162,7 +162,9 @@ describe('fetchSiteContent', () => {
     })
     expect(content.foodMenu).toMatchObject({
       name: 'Main food menu',
-      content: null,
+      intro: '',
+      bannerImage: null,
+      markdown: '',
     })
     expect(content.coffees[0]).toMatchObject({
       name: 'Test Coffee',

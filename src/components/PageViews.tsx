@@ -59,11 +59,24 @@ export function HomeSections({
   sections,
   events,
   eventsHref = '/events/',
+  menuHref = '/menu',
 }: {
   sections: HomeSection[]
   events: StageEvent[]
   eventsHref?: string
+  menuHref?: string
 }) {
+  const hiddenSectionTitles = new Set([
+    'opening times',
+    'opening hours',
+    'stage espresso',
+    'board games',
+    'dog friendly',
+  ])
+  const visibleSections = sections.filter(
+    (section) => !hiddenSectionTitles.has(section.title.trim().toLowerCase())
+  )
+
   if (!sections.length) {
     return (
       <p className="empty-state section-shell">
@@ -71,11 +84,12 @@ export function HomeSections({
       </p>
     )
   }
+  if (!visibleSections.length) return null
   return (
     <div className="editorial-stack">
-      {sections.map((section, index) => (
+      {visibleSections.map((section, index) => (
         <section
-          className={`editorial-row ${index % 2 ? 'editorial-row-reverse' : ''}`}
+          className={`editorial-row ${section.image ? '' : 'editorial-row-text-only'} ${index % 2 ? 'editorial-row-reverse' : ''}`}
           key={section.id}
         >
           {section.image ? (
@@ -88,6 +102,11 @@ export function HomeSections({
             <RichText
               document={section.text}
               eventsSlot={<UpcomingEvents events={events} href={eventsHref} />}
+              menuSlot={
+                <a className="button home-menu-link" href={menuHref}>
+                  View our menu
+                </a>
+              }
             />
           </div>
         </section>

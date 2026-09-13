@@ -18,6 +18,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "contentful:setup-admin": "node scripts/setup-admin-app.mjs",
+    "contentful:setup-home-menu": "node scripts/setup-home-menu-section.mjs",
     "contentful:setup-menu": "node scripts/setup-food-menu.mjs",
     "contentful:setup-coffee": "node scripts/setup-coffee.mjs",
     "contentful:publish-coffees": "node scripts/publish-current-coffees.mjs"

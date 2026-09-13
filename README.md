@@ -56,7 +56,8 @@ npm run check        # Astro and TypeScript diagnostics
 npm test             # unit tests
 npm run test:e2e     # desktop and mobile browser tests
 npm run format:check # formatting check
-npm run contentful:setup-admin # create and install the private Coffee Admin app
+npm run contentful:setup-admin # create and install the private Website Admin app
+npm run contentful:setup-home-menu # add the Menu section to the homepage order
 npm run contentful:setup-menu # create the Food Menu model and draft
 npm run contentful:setup-coffee # create the Coffee model and placeholder draft
 npm run contentful:publish-coffees # update and publish the current coffee list
@@ -76,17 +77,27 @@ Production routes contain published Contentful content in their generated HTML.
 Preview routes fetch saved drafts from `preview.contentful.com` after the shared
 password is entered and refresh their content on every page load.
 
-## Coffee admin
+## Website admin
 
-`/admin` opens a mobile-friendly coffee editor inside Contentful. Contentful
-handles authentication, so every staff member must have their own account and
-membership of the Stage space. Updates are made with the signed-in user's
-permissions and remain attributed to that user in Contentful.
+`/admin` opens a mobile-friendly coffee and food menu editor inside Contentful.
+Contentful handles authentication, so every staff member must have their own
+account and membership of the Stage space. Updates are made with the signed-in
+user's permissions and remain attributed to that user in Contentful.
 
 The editor can create, edit and immediately publish coffees. Removing a coffee
 unpublishes and archives it; archived entries remain available for restoration.
-The existing Contentful webhook rebuilds the public site after publishing or
-unpublishing.
+The Food menu tab edits the introduction and the menu itself on the existing
+`foodMenu` entry. The menu uses Markdown: `##` creates section headings, `###`
+creates dish headings, `*text*` creates italic allergen information, and
+`**text**` creates highlighted notes. The existing Contentful webhook rebuilds
+the public site after publishing.
+
+The authenticated Page app URL uses Contentful's current `/apps/app_installations/`
+route:
+
+```text
+https://app.contentful.com/spaces/{space}/environments/{environment}/apps/app_installations/{app-id}/
+```
 
 To create or update the private Page app, set a valid
 `CONTENTFUL_MANAGEMENT_TOKEN` in `.env`, then run:
@@ -96,7 +107,7 @@ npm run contentful:setup-admin
 ```
 
 The command discovers the organization from the configured space, creates the
-`Stage Coffee Admin` app definition with `https://stagecoffee.com/admin` as its
+`Stage Website Admin` app definition with `https://stagecoffee.com/admin` as its
 source, and installs it in the configured environment. Copy the reported app ID
 into `PUBLIC_CONTENTFUL_ADMIN_APP_ID` locally and into the GitHub repository
 variable `CONTENTFUL_ADMIN_APP_ID`. The app ID is public; no management token is
@@ -155,17 +166,19 @@ The site preserves the existing Contentful types:
 - `banner`: hero images
 - `events`: event name, description, image, start time, and end time
 - `job`: position, description, and application link
-- `foodMenu`: an internal name and the staff-editable rich-text menu
+- `foodMenu`: an internal name, optional banner image, Long Text introduction,
+  and staff-editable Markdown menu
 - `coffee`: coffee name, roaster, tasting notes, origin, region,
   altitude, producer, farm, varietal, optional process, caffeine status, and
-  repeatable price options, plus independent House Espresso, House Batch,
-  Pour Over, and Retail section flags
+  repeatable price options, plus independent Espresso, Batch, Pour Over, and
+  Retail section flags
 
 To create the Food Menu model and initial unpublished menu, put a valid
 `CONTENTFUL_MANAGEMENT_TOKEN` in `.env` and run
 `npm run contentful:setup-menu`. The command discovers the default locale,
-publishes the content model and leaves the entry as a draft for review. It does
-not overwrite an existing menu entry.
+publishes the content model, configures Contentful's Markdown editor, and safely
+migrates legacy Rich Text into the new Long Text field before removing the old
+field. Existing published menus remain published.
 
 `npm run contentful:setup-coffee` creates or updates and publishes the Coffee
 content model, then creates the seed coffees as unpublished entries. The

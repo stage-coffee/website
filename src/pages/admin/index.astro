@@ -13,7 +13,7 @@ const environment =
 const appId = import.meta.env.PUBLIC_CONTENTFUL_ADMIN_APP_ID || ''
 const adminUrl =
   space && environment && appId
-    ? `https://app.contentful.com/spaces/${space}/environments/${environment}/app_installations/${appId}/`
+    ? `https://app.contentful.com/spaces/${space}/environments/${environment}/apps/app_installations/${appId}/`
     : ''
 ---
 
@@ -25,11 +25,11 @@ const adminUrl =
     <meta name="robots" content="noindex, nofollow" />
     <meta
       name="description"
-      content="Authenticated coffee administration for Stage Espresso & Brewbar."
+      content="Authenticated coffee and food menu administration for Stage Espresso & Brewbar."
     />
     <meta name="theme-color" content="#f2b84b" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
-    <title>Coffee admin | Stage Espresso &amp; Brewbar</title>
+    <title>Website admin | Stage Espresso &amp; Brewbar</title>
   </head>
   <body class="admin-body">
     <CoffeeAdminApp client:only="react" adminUrl={adminUrl} />

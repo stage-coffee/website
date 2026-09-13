@@ -15,8 +15,8 @@ const sections: Array<{
   id: keyof Pick<Coffee, 'houseEspresso' | 'houseBatch' | 'filter' | 'retail'>
   title: string
 }> = [
-  { id: 'houseEspresso', title: 'House Espresso' },
-  { id: 'houseBatch', title: 'House Batch' },
+  { id: 'houseEspresso', title: 'Espresso' },
+  { id: 'houseBatch', title: 'Batch' },
   { id: 'filter', title: 'Pour Over' },
   { id: 'retail', title: 'Retail' },
 ]
@@ -75,7 +75,7 @@ export default function CoffeeView({ coffees }: { coffees: Coffee[] }) {
   return (
     <div className="coffee-page">
       <header className="coffee-intro section-shell">
-        <h1>Our coffees</h1>
+        <h1>Our Coffee</h1>
         <p>
           Explore what we have on offer. We source our coffee from a variety of
           roasters, and we rotate our selection regularly. Some are available as

@@ -3,6 +3,12 @@ import { fetchSiteContent, type SiteContent } from '../lib/contentful'
 import ContactForm from './ContactForm'
 import CoffeeView from './CoffeeView'
 import HeroView from './HeroView'
+import HomeFeatureCards from './HomeFeatureCards'
+import HomeIntroduction from './HomeIntroduction'
+import HomeLocation from './HomeLocation'
+import HomeMenuTiles from './HomeMenuTiles'
+import HomeOpeningHours from './HomeOpeningHours'
+import HomeRetail from './HomeRetail'
 import MenuView from './MenuView'
 import { EventsView, HomeSections, JobsBanner, JobsView } from './PageViews'
 
@@ -122,11 +128,18 @@ export default function PreviewApp(props: Props) {
               quotedTitle
               introduction="Thoughtfully sourced and carefully made coffee, alongside house-baked goods and a fresh, satisfying food menu."
             />
+            <HomeIntroduction />
+            <HomeMenuTiles preview />
+            <HomeOpeningHours />
+            <HomeRetail />
+            <HomeLocation />
+            <HomeFeatureCards sections={content.homeSections} />
             <JobsBanner jobs={content.jobs} href="/preview/jobs" />
             <HomeSections
               sections={content.homeSections}
               events={content.events}
               eventsHref="/preview/events"
+              menuHref="/preview/menu"
             />
           </>
         ) : null}
