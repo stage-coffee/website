@@ -1,205 +1,224 @@
-# Stage Espresso & Brewbar
+# Stage Espresso & Brewbar website
 
-The Astro website for [Stage Espresso & Brewbar](https://stagecoffee.com) in
-Leeds. Published content is generated from Contentful and deployed to GitHub
-Pages. Staff can review saved drafts through the frontend-gated `/preview`
-routes. password: soupswimsale
+This guide explains how Stage staff can update, preview and publish website
+content. For development, deployment and configuration details, see the
+[technical README](TECHNICAL_README.md).
 
-## Links
+## Quick links
 
-- Website: [stagecoffee.com](https://stagecoffee.com)
-- GitHub: [stage-coffee/website](https://github.com/stage-coffee/website)
-- Contentful: [Stage space](https://app.contentful.com/spaces/cccc6mdhxqr5/environments/master/home)
+- Live website: [stagecoffee.com](https://stagecoffee.com)
+- Draft preview: [stagecoffee.com/preview](https://stagecoffee.com/preview)
+- Website admin: [stagecoffee.com/admin](https://stagecoffee.com/admin)
+- Contentful: [Stage Website](https://app.contentful.com/spaces/cccc6mdhxqr5/environments/master/home)
 - Instagram: [@stagecoffeeleeds](https://www.instagram.com/stagecoffeeleeds/)
 
-## Requirements
+## Previewing draft content
 
-- Node.js 22.12 or newer (`.nvmrc` is included)
-- Access to the Stage Contentful space for real content
+Content saved in Contentful can be checked before it is published:
 
-## Local development
+1. Save your changes in Contentful or the Stage website admin.
+2. Open [stagecoffee.com/preview](https://stagecoffee.com/preview).
+3. Enter the shared password: `soupswimsale`.
+4. Use the preview navigation to check the relevant page.
+5. Refresh the page after making further changes in Contentful.
 
-```bash
-nvm use
-npm install
-npx playwright install chromium
-cp .env.example .env
-npm run dev
-```
+The preview shows saved drafts as well as published content. It is designed for
+checking wording, images and content before publishing. The password is only a
+simple deterrent, so do not put confidential or sensitive information in draft
+website content.
 
-Production content uses `CONTENTFUL_SPACE_ID`, `CONTENTFUL_DELIVERY_TOKEN`, and
-`CONTENTFUL_ENVIRONMENT`. Preview routes reuse `CONTENTFUL_SPACE_ID` when
-`PUBLIC_CONTENTFUL_SPACE_ID` is omitted, but require a separate
-`PUBLIC_CONTENTFUL_PREVIEW_TOKEN` because draft requests run in the browser.
-After changing these values, restart the development server so Astro can embed
-the updated preview configuration.
+The main preview pages are:
 
-Create the preview password hash without storing the password in the repository:
+| Content     | Preview page                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------ |
+| Homepage    | [stagecoffee.com/preview](https://stagecoffee.com/preview)                                 |
+| Food menu   | [stagecoffee.com/preview/menu](https://stagecoffee.com/preview/menu)                       |
+| Coffee menu | [stagecoffee.com/preview/menu?tab=coffee](https://stagecoffee.com/preview/menu?tab=coffee) |
+| Events      | [stagecoffee.com/preview/events](https://stagecoffee.com/preview/events)                   |
+| Jobs        | [stagecoffee.com/preview/jobs](https://stagecoffee.com/preview/jobs)                       |
+| Blog index  | [stagecoffee.com/preview/blog](https://stagecoffee.com/preview/blog)                       |
 
-```bash
-printf '%s' 'your shared password' | shasum -a 256
-```
+Individual blog drafts use their slug, for example:
+`https://stagecoffee.com/preview/blog?slug=my-blog-post`.
 
-Put only the resulting hash in `PUBLIC_PREVIEW_PASSWORD_HASH`.
+## Updating coffee and food menus
 
-> [!CAUTION]
-> The preview gate is a convenience deterrent, not access control. Its password
-> hash and Contentful Preview API token are shipped to the browser and can be
-> extracted. Draft website content is intentionally treated as low sensitivity.
+Open [stagecoffee.com/admin](https://stagecoffee.com/admin). You will be taken
+to the Stage Website Admin app inside Contentful. Sign in with your own
+Contentful account so changes are attributed to the correct person.
 
-## Commands
+The admin has two areas:
 
-```bash
-npm run dev          # local Astro server
-npm run build        # static production build in dist/
-npm run check        # Astro and TypeScript diagnostics
-npm test             # unit tests
-npm run test:e2e     # desktop and mobile browser tests
-npm run format:check # formatting check
-npm run contentful:setup-admin # create and install the private Website Admin app
-npm run contentful:setup-home-menu # add the Menu section to the homepage order
-npm run contentful:setup-menu # create the Food Menu model and draft
-npm run contentful:setup-coffee # create the Coffee model and placeholder draft
-npm run contentful:publish-coffees # update and publish the current coffee list
-```
+- **Coffees:** create, edit, publish, remove and restore coffees. Choose every
+  section where a coffee should appear: Espresso, Batch, Pour Over or Retail. A
+  coffee can appear in more than one section.
+- **Food menu:** edit the menu introduction and the complete food menu. Change
+  its banner image from the Food Menu entry in Contentful when needed.
 
-## Routes
+Coffee changes made through the admin are published immediately. Removing a
+coffee safely unpublishes and archives it rather than deleting it permanently.
+The public website may take several minutes to rebuild after publishing.
 
-| Published      | Draft preview               |
-| -------------- | --------------------------- |
-| `/`            | `/preview`                  |
-| `/events/`     | `/preview/events/`          |
-| `/jobs/`       | `/preview/jobs/`            |
-| `/menu`        | `/preview/menu`             |
-| `/blog`        | `/preview/blog`             |
-| `/blog/{slug}` | `/preview/blog?slug={slug}` |
-
-Production routes contain published Contentful content in their generated HTML.
-Preview routes fetch saved drafts from `preview.contentful.com` after the shared
-password is entered and refresh their content on every page load.
-
-The combined menu defaults to Food. Link directly to its Coffee tab with
-`/menu?tab=coffee`, or `/preview/menu?tab=coffee` when reviewing drafts. The
-former `/coffee` routes redirect to these corresponding menu views.
-
-The blog index and homepage feature are ordered newest first using the Blog
-entry's published date, with Contentful publication and creation dates as safe
-fallbacks. Public article share buttons use the device share sheet where
-available and otherwise copy the canonical URL. WhatsApp and other messaging
-services generate their rich previews from the article's Open Graph metadata;
-those services may temporarily cache an older title, description, or image.
-
-## Website admin
-
-`/admin` opens a mobile-friendly coffee and food menu editor inside Contentful.
-Contentful handles authentication, so every staff member must have their own
-account and membership of the Stage space. Updates are made with the signed-in
-user's permissions and remain attributed to that user in Contentful.
-
-The editor can create, edit and immediately publish coffees. Removing a coffee
-unpublishes and archives it; archived entries remain available for restoration.
-The Food menu tab edits the introduction and the menu itself on the existing
-`foodMenu` entry. The menu uses Markdown: `##` creates section headings, `###`
-creates dish headings, `*text*` creates italic allergen information, and
-`**text**` creates highlighted notes. The existing Contentful webhook rebuilds
-the public site after publishing.
-
-The authenticated Page app URL uses Contentful's current `/apps/app_installations/`
-route:
+The food menu is written using simple Markdown:
 
 ```text
-https://app.contentful.com/spaces/{space}/environments/{environment}/apps/app_installations/{app-id}/
+## Breakfast
+
+### Homemade Granola Bowl (V/VGN) — £5.95
+
+*Allergens: Gluten, milk.*
+
+Greek yoghurt, berry compote, homemade granola and fruit.
+
+**Available until 14:00.**
 ```
 
-To create or update the private Page app, set a valid
-`CONTENTFUL_MANAGEMENT_TOKEN` in `.env`, then run:
+- `##` creates a menu section heading.
+- `###` creates a dish heading.
+- `*text*` makes allergen information italic.
+- `**text**` highlights important information.
+- Leave a blank line between separate pieces of content.
 
-```bash
-npm run contentful:setup-admin
-```
+Preview menu changes before publishing at
+[stagecoffee.com/preview/menu](https://stagecoffee.com/preview/menu).
 
-The command discovers the organization from the configured space, creates the
-`Stage Website Admin` app definition with `https://stagecoffee.com/admin` as its
-source, and installs it in the configured environment. Copy the reported app ID
-into `PUBLIC_CONTENTFUL_ADMIN_APP_ID` locally and into the GitHub repository
-variable `CONTENTFUL_ADMIN_APP_ID`. The app ID is public; no management token is
-included in the browser bundle.
+## Updating other content in Contentful
 
-For local iframe development, set `CONTENTFUL_ADMIN_APP_SRC` to the local HTTPS
-URL exposed to Contentful and rerun the setup command. Direct visits to `/admin`
-redirect to the authenticated Contentful Page app; the editor itself renders
-only in Contentful's app frame.
+Use the main [Contentful space](https://app.contentful.com/spaces/cccc6mdhxqr5/environments/master/home)
+for homepage content, events, jobs, blogs and banner images.
 
-## GitHub Pages configuration
+The usual workflow is:
 
-Set GitHub Pages to use **GitHub Actions**, then configure these repository
-variables:
+1. Open or create the entry.
+2. Make the changes and press **Save**.
+3. Review the saved draft on the appropriate preview page.
+4. Make any corrections and refresh the preview.
+5. Press **Publish** when the content is ready for customers.
+6. Allow a few minutes for GitHub to rebuild the live website.
+7. Check the published page on [stagecoffee.com](https://stagecoffee.com).
 
-- `CONTENTFUL_SPACE_ID`
-- `CONTENTFUL_ENVIRONMENT` (normally `master`)
-- `CONTENTFUL_ADMIN_APP_ID`
+Publish newly uploaded images before publishing the entry that uses them. A
+saved change to an already-published entry remains a draft until it is published
+again.
 
-Configure these repository secrets:
+## Website overview
 
-- `CONTENTFUL_DELIVERY_TOKEN`
-- `CONTENTFUL_PREVIEW_TOKEN`
-- `PREVIEW_PASSWORD_HASH`
+### Homepage
 
-The workflow in `.github/workflows/pages.yml` validates pull requests and deploys
-`main`, manual runs, and `contentful-publish` repository dispatches. Deployment
-concurrency prevents an older build from replacing a newer content update.
+The homepage contains:
 
-## Contentful publishing webhook
+- The main hero image and introductory message.
+- A yellow **Join our team!** banner when a published job exists.
+- An introduction to Stage.
+- Food and Coffee image links leading to the appropriate Menu tab.
+- The newest published blog post, when any blog posts exist.
+- Opening Hours.
+- Coffee at Home and retail information.
+- Location and travel information.
+- Feature cards such as Our Corner, Board Games and Dog Friendly.
+- Additional ordered Contentful website sections.
+- The contact form and Find us information.
 
-Create a fine-grained GitHub token scoped only to `stage-coffee/website` with the
-minimum permission required to create a repository dispatch. In Contentful,
-create a webhook for entry and asset publish, unpublish, and deletion events:
+The homepage Blog navigation link and latest-post feature are hidden when there
+are no published blog posts. The jobs banner is hidden when there are no
+published jobs.
 
-- Method: `POST`
-- URL: `https://api.github.com/repos/stage-coffee/website/dispatches`
-- Header: `Accept: application/vnd.github+json`
-- Header: `Authorization: Bearer YOUR_FINE_GRAINED_TOKEN`
-- Header: `User-Agent: StageCoffee-Contentful-Webhook`
-- Header: `X-GitHub-Api-Version: 2022-11-28`
-- Body: `{ "event_type": "contentful-publish" }`
+### Food and coffee menus
 
-Store the token only in Contentful's webhook configuration. Do not add it to
-this repository.
+[stagecoffee.com/menu](https://stagecoffee.com/menu) combines both menus in one
+place. Food is the default tab. Coffee opens directly at
+[stagecoffee.com/menu?tab=coffee](https://stagecoffee.com/menu?tab=coffee).
 
-Configure Contentful preview URLs to point homepage/banner entries to
-`https://stagecoffee.com/preview`, events to `/preview/events/`, jobs to
-`/preview/jobs/`, the Food Menu entry to `/preview/menu`, and coffee entries to
-`/preview/menu?tab=coffee`. Configure Blog entries with
-`https://stagecoffee.com/preview/blog?slug={entry.fields.slug}` so saved drafts
-can be opened without rebuilding the site.
+Coffee entries are grouped into Espresso, Batch, Pour Over and Retail. Customers
+can expand a coffee to see its origin, process, other facts and prices.
 
-## Content model
+### Events
 
-The site preserves the existing Contentful types:
+[stagecoffee.com/events](https://stagecoffee.com/events) shows upcoming and past
+events. Upcoming events are ordered chronologically. Past events are shown with
+the most recent first.
 
-- `websiteOrder`: ordered homepage content and contact-form introduction
-- `banner`: hero images
-- `events`: event name, description, image, start time, and end time
-- `job`: position, description, and application link
-- `foodMenu`: an internal name, optional banner image, Long Text introduction,
-  and staff-editable Markdown menu
-- `coffee`: coffee name, roaster, tasting notes, origin, region,
-  altitude, producer, farm, varietal, optional process, caffeine status, and
-  repeatable price options, plus independent Espresso, Batch, Pour Over, and
-  Retail section flags
-- `blog`: title, unique slug, optional cover image and published date, short
-  introduction, and Rich Text article content
+An Event entry can include:
 
-To create the Food Menu model and initial unpublished menu, put a valid
-`CONTENTFUL_MANAGEMENT_TOKEN` in `.env` and run
-`npm run contentful:setup-menu`. The command discovers the default locale,
-publishes the content model, configures Contentful's Markdown editor, and safely
-migrates legacy Rich Text into the new Long Text field before removing the old
-field. Existing published menus remain published.
+- Name, description and image.
+- Start and end date/time.
+- An optional Read more link.
 
-`npm run contentful:setup-coffee` creates or updates and publishes the Coffee
-content model, then creates the seed coffees as unpublished entries. The
-command is idempotent and does not overwrite existing entries.
+The website automatically provides an Add to Calendar option for upcoming
+events, supporting Google Calendar, Apple Calendar, Outlook and other calendar
+apps.
 
-Content mapping is defensive: missing entries render useful empty states rather
-than breaking the entire build. Events remain listed until their end time.
+Events remain upcoming until their end time has passed. Use accurate start and
+end times so they move into Past Events at the right time.
+
+### Blog
+
+[stagecoffee.com/blog](https://stagecoffee.com/blog) lists published posts with
+their cover image, title, introduction and date. Each post has its own URL based
+on its slug, such as `/blog/my-blog-post`.
+
+A Blog entry can include:
+
+- Title and unique slug.
+- Cover image.
+- Published date and short introduction.
+- Rich Text article content.
+- An optional associated Event.
+
+When the associated event has not ended, the blog card and article display an
+Add to Calendar option. Blog pages also include sharing metadata, a Share button
+and links to other posts. Changes to a slug also change the post URL, so avoid
+changing a slug after sharing the original link.
+
+### Jobs
+
+Published Job entries appear on the Jobs page and activate the **Join our
+team!** banner directly below the homepage hero. Unpublish the job when it is no
+longer available.
+
+### Website sections and homepage order
+
+Website Section entries hold reusable homepage content and images. The Website
+Order entry controls which Contentful sections appear and their order, as well
+as the contact-form introduction. Some newer homepage cards are built into the
+website and are not rearranged through Website Order.
+
+### Images and accessibility
+
+When uploading an image:
+
+- Use a clear, good-quality original rather than a screenshot where possible.
+- Give it a useful title.
+- Add a description that explains what is visible; the website can use this as
+  alternative text for customers using screen readers.
+- Publish the image asset as well as the entry that refers to it.
+- Check desktop and mobile preview pages to make sure the crop works well.
+
+## When the live website does not update
+
+Try these checks:
+
+1. Confirm the entry and any new image assets say **Published**, not Draft or
+   Changed.
+2. Check that the saved draft looks correct on the preview website.
+3. Wait several minutes for the website rebuild to finish.
+4. Refresh the public page, or try a private/incognito browser window.
+5. If the preview cannot find a draft, check its slug and that the Contentful
+   entry was saved.
+
+If publishing still does not update the website, tell Tom which entry was
+changed, when it was published and which page should have changed.
+
+## When to contact Tom
+
+Contact Tom if you need:
+
+- Changes to page layout, colours, spacing, fonts or responsive behaviour.
+- New page types, content fields, menu sections or website features.
+- Changes to how Contentful content is formatted or ordered.
+- Help with a failed website rebuild, broken preview, admin access or an error.
+- Advice before making a structural change to a Contentful content model.
+
+For routine text, image, event, blog, job, food-menu and coffee updates, staff
+can use Contentful, the preview website and the Stage Website Admin following
+the instructions above.
