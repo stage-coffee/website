@@ -423,7 +423,7 @@ test('preview content is gated and excluded from indexing', async ({
   ).toHaveAttribute('href', '/preview')
   await expect(
     page.getByRole('navigation').getByRole('link', { name: 'Events' })
-  ).toHaveCount(0)
+  ).toHaveAttribute('href', '/preview/events')
   await expect(
     page.getByRole('link', { name: 'Menu', exact: true })
   ).toHaveAttribute('href', '/preview/menu')
