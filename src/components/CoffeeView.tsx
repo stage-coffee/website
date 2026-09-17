@@ -71,11 +71,17 @@ function CoffeeCard({ coffee, section }: { coffee: Coffee; section: string }) {
   )
 }
 
-export default function CoffeeView({ coffees }: { coffees: Coffee[] }) {
+export default function CoffeeView({
+  coffees,
+  embedded = false,
+}: {
+  coffees: Coffee[]
+  embedded?: boolean
+}) {
   return (
-    <div className="coffee-page">
+    <div className={embedded ? 'coffee-tab-view' : 'coffee-page'}>
       <header className="coffee-intro section-shell">
-        <h1>Our Coffee</h1>
+        {!embedded ? <h1>Our Coffee</h1> : null}
         <p>
           Explore what we have on offer. We source our coffee from a variety of
           roasters, and we rotate our selection regularly. Some are available as

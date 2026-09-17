@@ -29,11 +29,17 @@ const inlineMarkdown = (text: string): ReactNode[] =>
       ))
     })
 
-export default function MenuView({ menu }: { menu: FoodMenu | null }) {
+export default function MenuView({
+  menu,
+  embedded = false,
+}: {
+  menu: FoodMenu | null
+  embedded?: boolean
+}) {
   const blocks = menu ? menuBlocksFromMarkdown(menu.markdown) : []
 
   return (
-    <div className="menu-page">
+    <div className={embedded ? 'menu-tab-view' : 'menu-page'}>
       {menu?.bannerImage ? (
         <figure className="menu-banner">
           <img
@@ -56,7 +62,7 @@ export default function MenuView({ menu }: { menu: FoodMenu | null }) {
       ) : null}
       <section className="menu-section section-shell" aria-label="Food menu">
         <header className="menu-page-header">
-          <h1>Our Menu</h1>
+          {!embedded ? <h1>Our Menu</h1> : null}
           {menu?.intro ? <p>{menu.intro}</p> : null}
         </header>
         {blocks.length ? (

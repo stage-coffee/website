@@ -22,6 +22,7 @@ export type StageEvent = {
   image: ImageAsset | null
   startTime: string
   endTime: string
+  readMoreLink: string
 }
 
 export type StageJob = {
@@ -77,6 +78,7 @@ export type SiteContent = {
   homeSections: HomeSection[]
   contactFormText: Document | null
   events: StageEvent[]
+  pastEvents: StageEvent[]
   jobs: StageJob[]
   foodMenu: FoodMenu | null
   coffees: Coffee[]
@@ -114,6 +116,7 @@ const emptyContent: SiteContent = {
   homeSections: [],
   contactFormText: null,
   events: [],
+  pastEvents: [],
   jobs: [],
   foodMenu: null,
   coffees: [],
@@ -314,6 +317,21 @@ export const filterCurrentEvents = (
         new Date(second.startTime).getTime()
     )
 
+export const filterPastEvents = (
+  events: StageEvent[],
+  now = new Date()
+): StageEvent[] =>
+  [...events]
+    .filter((event) => {
+      const finalTime = new Date(event.endTime || event.startTime).getTime()
+      return Number.isFinite(finalTime) && finalTime < now.getTime()
+    })
+    .sort(
+      (first, second) =>
+        new Date(second.startTime).getTime() -
+        new Date(first.startTime).getTime()
+    )
+
 export const sortCoffees = (coffees: Coffee[]): Coffee[] =>
   [...coffees].sort((first, second) => {
     const firstIsDecaf = first.caffeine.toLowerCase() === 'decaf'
@@ -380,6 +398,7 @@ export const fetchSiteContent = async (
       image: imageFrom(entry.fields?.image),
       startTime,
       endTime: asString(entry.fields?.endTime, startTime),
+      readMoreLink: asString(entry.fields?.readMoreLink),
     }
   })
 
@@ -393,6 +412,7 @@ export const fetchSiteContent = async (
     })),
     contactFormText: asDocument(home?.fields?.contactFormText),
     events: filterCurrentEvents(events),
+    pastEvents: filterPastEvents(events),
     jobs: jobEntries.map((entry, index) => ({
       id: asString(entry.sys?.id, `job-${index}`),
       position: asString(entry.fields?.jobPosition, 'Role at Stage'),

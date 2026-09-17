@@ -115,35 +115,177 @@ export function HomeSections({
   )
 }
 
-export function EventsView({ events }: { events: StageEvent[] }) {
-  if (!events.length) {
-    return (
-      <div className="empty-state">
-        <h2>No upcoming events</h2>
-        <p>Follow us on Instagram for the latest announcements.</p>
-      </div>
-    )
+const stageAddress =
+  'Stage Espresso & Brewbar, 41 Great George Street, Leeds, LS1 3BB'
+
+const calendarTimestamp = (value: string) =>
+  new Date(value)
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}Z$/, 'Z')
+
+const escapeCalendarText = (value: string) =>
+  value
+    .replace(/\\/g, '\\\\')
+    .replace(/\n/g, '\\n')
+    .replace(/,/g, '\\,')
+    .replace(/;/g, '\\;')
+
+const calendarLinksFor = (event: StageEvent) => {
+  const start = calendarTimestamp(event.startTime)
+  const end = calendarTimestamp(event.endTime || event.startTime)
+  const eventUrl = event.readMoreLink || 'https://stagecoffee.com/events/'
+  const googleParams = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: event.name,
+    dates: `${start}/${end}`,
+    details: `More information: ${eventUrl}`,
+    location: stageAddress,
+  })
+  const calendarFile = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Stage Espresso & Brewbar//Events//EN',
+    'BEGIN:VEVENT',
+    `UID:${event.id}@stagecoffee.com`,
+    `DTSTAMP:${calendarTimestamp(new Date().toISOString())}`,
+    `DTSTART:${start}`,
+    `DTEND:${end}`,
+    `SUMMARY:${escapeCalendarText(event.name)}`,
+    `DESCRIPTION:${escapeCalendarText(`More information: ${eventUrl}`)}`,
+    `LOCATION:${escapeCalendarText(stageAddress)}`,
+    `URL:${eventUrl}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].join('\r\n')
+
+  return {
+    google: `https://calendar.google.com/calendar/render?${googleParams.toString()}`,
+    file: `data:text/calendar;charset=utf-8,${encodeURIComponent(calendarFile)}`,
+    filename: `${event.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')}.ics`,
   }
+}
+
+function EventCards({
+  events,
+  showCalendar = false,
+}: {
+  events: StageEvent[]
+  showCalendar?: boolean
+}) {
   return (
     <div className="card-grid">
-      {events.map((event) => (
-        <article className="event-card" key={event.id}>
-          {event.image ? (
-            <div className="card-media">
-              <EditorialImage image={event.image} />
+      {events.map((event) => {
+        const calendar = showCalendar ? calendarLinksFor(event) : null
+        const calendarDialogId = `event-calendar-${event.id}`
+        const calendarDialogTitleId = `${calendarDialogId}-title`
+        return (
+          <article className="event-card" key={event.id}>
+            {event.image ? (
+              <div className="card-media">
+                <EditorialImage image={event.image} />
+              </div>
+            ) : null}
+            <div className="card-copy">
+              <h2>{event.name}</h2>
+              <time className="event-date" dateTime={event.startTime}>
+                {formatDate(event.startTime, true)}
+                <br />
+                {formatTime(event.startTime)} - {formatTime(event.endTime)}
+              </time>
+              <RichText document={event.description} />
+              <div className="event-card-actions">
+                {calendar ? (
+                  <>
+                    <button
+                      className="event-calendar-button"
+                      type="button"
+                      popoverTarget={calendarDialogId}
+                    >
+                      Add to Calendar
+                    </button>
+                    <div
+                      className="event-calendar-options"
+                      id={calendarDialogId}
+                      popover="auto"
+                      role="dialog"
+                      aria-labelledby={calendarDialogTitleId}
+                    >
+                      <div className="event-calendar-dialog-header">
+                        <h3 id={calendarDialogTitleId}>Add to Calendar</h3>
+                        <button
+                          className="event-calendar-close"
+                          type="button"
+                          popoverTarget={calendarDialogId}
+                          popoverTargetAction="hide"
+                          aria-label="Close calendar options"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <p>{event.name}</p>
+                      <div className="event-calendar-links">
+                        <a
+                          href={calendar.google}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Google Calendar
+                        </a>
+                        <a href={calendar.file} download={calendar.filename}>
+                          Apple, Outlook or another app (.ics)
+                        </a>
+                      </div>
+                    </div>
+                  </>
+                ) : null}
+                {event.readMoreLink ? (
+                  <a className="event-read-more" href={event.readMoreLink}>
+                    Read more <span aria-hidden="true">→</span>
+                  </a>
+                ) : null}
+              </div>
             </div>
-          ) : null}
-          <div className="card-copy">
-            <h2>{event.name}</h2>
-            <time className="event-date" dateTime={event.startTime}>
-              {formatDate(event.startTime, true)}
-              <br />
-              {formatTime(event.startTime)} - {formatTime(event.endTime)}
-            </time>
-            <RichText document={event.description} />
+          </article>
+        )
+      })}
+    </div>
+  )
+}
+
+export function EventsView({
+  events,
+  pastEvents = [],
+}: {
+  events: StageEvent[]
+  pastEvents?: StageEvent[]
+}) {
+  return (
+    <div className="events-collections">
+      <section className="events-group" aria-labelledby="upcoming-events">
+        <h2 id="upcoming-events">Upcoming Events</h2>
+        {events.length ? (
+          <EventCards events={events} showCalendar />
+        ) : (
+          <div className="empty-state">
+            <h3>No upcoming events</h3>
+            <p>Follow us on Instagram for the latest announcements.</p>
           </div>
-        </article>
-      ))}
+        )}
+      </section>
+      <section className="events-group" aria-labelledby="past-events">
+        <h2 id="past-events">Past Events</h2>
+        {pastEvents.length ? (
+          <EventCards events={pastEvents} />
+        ) : (
+          <div className="empty-state">
+            <p>There are no past events to show yet.</p>
+          </div>
+        )}
+      </section>
     </div>
   )
 }

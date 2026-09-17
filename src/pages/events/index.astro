@@ -1,13 +1,12 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro'
-import Hero from '../../components/Hero.astro'
 import { EventsView } from '../../components/PageViews'
 import { getProductionContent } from '../../lib/contentful'
 
 const content = await getProductionContent()
 const description =
   'Open mic nights, live music, games and community events at Stage Espresso & Brewbar in Leeds.'
-const schemas = content.events.map((event) => ({
+const schemas = [...content.events, ...content.pastEvents].map((event) => ({
   '@context': 'https://schema.org',
   '@type': 'Event',
   name: event.name,
@@ -28,14 +27,13 @@ const schemas = content.events.map((event) => ({
   contact={content.contactFormText}
   structuredData={schemas}
 >
-  <main>
-    <Hero
-      images={content.banners}
-      title="Events at Stage."
-      introduction="Good coffee, good company and plenty happening after hours."
-    />
-    <section class="section-shell page-section">
-      <EventsView events={content.events} />
+  <main class="events-page">
+    <header class="events-page-header section-shell">
+      <h1>Events at Stage</h1>
+      <p>Good coffee, good company and plenty happening after hours.</p>
+    </header>
+    <section class="events-page-content section-shell">
+      <EventsView events={content.events} pastEvents={content.pastEvents} />
     </section>
   </main>
 </BaseLayout>

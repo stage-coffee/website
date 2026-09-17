@@ -24,6 +24,7 @@ const event = (id: string, startTime: string, endTime: string): StageEvent => ({
   image: null,
   startTime,
   endTime,
+  readMoreLink: '',
 })
 
 const coffee = (name: string, caffeine: string, createdAt: string): Coffee => ({
@@ -344,6 +345,7 @@ describe('fetchSiteContent', () => {
                     fields: {
                       displayName: null,
                       startTime: '2099-09-04T18:00:00Z',
+                      readMoreLink: 'https://example.com/event',
                     },
                   },
                 ]
@@ -384,6 +386,7 @@ describe('fetchSiteContent', () => {
     expect(content.events[0]).toMatchObject({
       name: 'Untitled event',
       endTime: '2099-09-04T18:00:00Z',
+      readMoreLink: 'https://example.com/event',
     })
     expect(content.foodMenu).toMatchObject({
       name: 'Main food menu',

@@ -8,8 +8,8 @@ export default function ContactForm({ introduction }: Props) {
   const [submitted, setSubmitted] = useState(false)
 
   return (
-    <section className="contact-section section-shell" id="contact">
-      <div className="contact-card">
+    <section className="contact-section" id="contact">
+      <div className="contact-card section-shell">
         <div className="contact-copy">
           <h2>Get in touch</h2>
           <RichText document={introduction} />

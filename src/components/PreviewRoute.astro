@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 import PreviewApp from './PreviewApp'
 
 interface Props {
-  page: 'home' | 'events' | 'jobs' | 'menu' | 'coffee' | 'blog'
+  page: 'home' | 'events' | 'jobs' | 'menu' | 'blog'
 }
 const { page } = Astro.props
 const labels = {
@@ -11,7 +11,6 @@ const labels = {
   events: 'Events',
   jobs: 'Jobs',
   menu: 'Menu',
-  coffee: 'Coffee',
   blog: 'Blog',
 }
 ---

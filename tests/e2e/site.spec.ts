@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test('public routes render useful headings and metadata', async ({ page }) => {
-  for (const path of ['/', '/events/', '/jobs/', '/menu', '/coffee']) {
+  for (const path of ['/', '/events/', '/jobs/', '/menu']) {
     await page.goto(path)
     await expect(page.locator('h1').first()).toHaveCount(1)
     await expect(page.locator('meta[name="description"]')).toHaveAttribute(
@@ -12,6 +12,38 @@ test('public routes render useful headings and metadata', async ({ page }) => {
       page.getByRole('navigation').getByRole('link', { name: 'Contact' })
     ).toHaveCount(0)
   }
+})
+
+test('food and coffee share one menu page with linkable tabs', async ({
+  page,
+}) => {
+  await page.goto('/menu')
+
+  const foodTab = page.getByRole('tab', { name: 'Food' })
+  const coffeeTab = page.getByRole('tab', { name: 'Coffee' })
+  await expect(foodTab).toHaveAttribute('aria-selected', 'true')
+  await expect(coffeeTab).toHaveAttribute('aria-selected', 'false')
+  await expect(page.locator('#food-panel')).toBeVisible()
+  await expect(page.locator('#coffee-panel')).toBeHidden()
+
+  await coffeeTab.click()
+  await expect(page).toHaveURL(/\/menu\?tab=coffee$/)
+  await expect(coffeeTab).toHaveAttribute('aria-selected', 'true')
+  await expect(page.locator('#coffee-panel')).toBeVisible()
+  await expect(page.locator('#food-panel')).toBeHidden()
+
+  await page.reload()
+  await expect(page.getByRole('tab', { name: 'Coffee' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  )
+
+  await page.goto('/coffee')
+  await expect(page).toHaveURL(/\/menu\?tab=coffee$/)
+  await expect(page.getByRole('tab', { name: 'Coffee' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  )
 })
 
 test('find us section includes walking and cycling information', async ({
@@ -106,7 +138,7 @@ test('homepage menu tiles remain side by side and link to both menus', async ({
   }
   const tiles = page.locator('.home-menu-tile')
   await expect(tiles).toHaveCount(2)
-  await expect(tiles.nth(0)).toHaveAttribute('href', '/coffee')
+  await expect(tiles.nth(0)).toHaveAttribute('href', '/menu?tab=coffee')
   await expect(tiles.nth(1)).toHaveAttribute('href', '/menu')
   await expect(tiles.locator('span')).toHaveText(['Coffee', 'Food'])
 
@@ -397,7 +429,7 @@ test('preview content is gated and excluded from indexing', async ({
   ).toHaveAttribute('href', '/preview/menu')
   await expect(
     page.getByRole('link', { name: 'Coffee', exact: true })
-  ).toHaveAttribute('href', '/preview/coffee')
+  ).toHaveCount(0)
   await expect(
     page.getByRole('link', { name: 'Blog', exact: true })
   ).toHaveAttribute('href', '/preview/blog')
@@ -427,7 +459,7 @@ test('preview content is gated and excluded from indexing', async ({
   ).toHaveAttribute('href', '/preview/menu')
   await expect(page.locator('.home-menu-tile').nth(0)).toHaveAttribute(
     'href',
-    '/preview/coffee'
+    '/preview/menu?tab=coffee'
   )
   await expect(page.locator('.home-menu-tile').nth(1)).toHaveAttribute(
     'href',
@@ -472,6 +504,10 @@ test('preview content is gated and excluded from indexing', async ({
 
   await page.getByRole('link', { name: 'Menu', exact: true }).click()
   await expect(page).toHaveURL(/\/preview\/menu$/)
+  await expect(page.getByRole('tab', { name: 'Food' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  )
   await expect(
     page.getByRole('heading', { name: 'Draft menu dish — £5.95' })
   ).toBeVisible()
@@ -497,8 +533,12 @@ test('preview content is gated and excluded from indexing', async ({
     page.getByRole('link', { name: 'Home', exact: true })
   ).toHaveAttribute('href', '/preview')
 
-  await page.getByRole('link', { name: 'Coffee', exact: true }).click()
-  await expect(page).toHaveURL(/\/preview\/coffee$/)
+  await page.getByRole('tab', { name: 'Coffee' }).click()
+  await expect(page).toHaveURL(/\/preview\/menu\?tab=coffee$/)
+  await expect(page.getByRole('tab', { name: 'Coffee' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  )
   await expect(page.locator('.coffee-group > h2')).toHaveText([
     'Espresso',
     'Batch',
@@ -537,7 +577,7 @@ test('preview content is gated and excluded from indexing', async ({
   await coffeeCard.locator('summary').click()
   await expect(coffeeCard.getByText('Peach and chocolate.')).toBeVisible()
   await expect(coffeeCard.getByText('250g beans — £14.00')).toBeVisible()
-  expect(previewRequests).toBe(26)
+  expect(previewRequests).toBe(20)
 })
 
 test('blog preview is gated, resolves a draft slug, and handles missing posts', async ({

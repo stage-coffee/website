@@ -10,7 +10,6 @@ import {
 import BlogPostView from './BlogPostView'
 import BlogIndexView from './BlogIndexView'
 import ContactForm from './ContactForm'
-import CoffeeView from './CoffeeView'
 import HeroView from './HeroView'
 import HomeFeatureCards from './HomeFeatureCards'
 import HomeBlogFeature from './HomeBlogFeature'
@@ -19,12 +18,12 @@ import HomeLocation from './HomeLocation'
 import HomeMenuTiles from './HomeMenuTiles'
 import HomeOpeningHours from './HomeOpeningHours'
 import HomeRetail from './HomeRetail'
-import MenuView from './MenuView'
+import MenuTabsView from './MenuTabsView'
 import RelatedBlogPosts from './RelatedBlogPosts'
 import { EventsView, HomeSections, JobsBanner, JobsView } from './PageViews'
 
 type Props = {
-  page: 'home' | 'events' | 'jobs' | 'menu' | 'coffee' | 'blog'
+  page: 'home' | 'events' | 'jobs' | 'menu' | 'blog'
   space: string
   token: string
   environment: string
@@ -168,6 +167,7 @@ export default function PreviewApp(props: Props) {
               quotedTitle
               introduction="Thoughtfully sourced and carefully made coffee, alongside house-baked goods and a fresh, satisfying food menu."
             />
+            <JobsBanner jobs={content.jobs} href="/preview/jobs" />
             <HomeIntroduction />
             <HomeMenuTiles preview />
             <HomeBlogFeature post={blogPosts[0]} preview />
@@ -175,7 +175,6 @@ export default function PreviewApp(props: Props) {
             <HomeRetail />
             <HomeLocation />
             <HomeFeatureCards sections={content.homeSections} />
-            <JobsBanner jobs={content.jobs} href="/preview/jobs" />
             <HomeSections
               sections={content.homeSections}
               events={content.events}
@@ -185,14 +184,18 @@ export default function PreviewApp(props: Props) {
           </>
         ) : null}
         {props.page === 'events' ? (
-          <>
-            <section className="page-intro section-shell">
+          <div className="events-page">
+            <header className="events-page-header section-shell">
               <h1>Events at Stage</h1>
+              <p>Good coffee, good company and plenty happening after hours.</p>
+            </header>
+            <section className="events-page-content section-shell">
+              <EventsView
+                events={content.events}
+                pastEvents={content.pastEvents}
+              />
             </section>
-            <section className="section-shell">
-              <EventsView events={content.events} />
-            </section>
-          </>
+          </div>
         ) : null}
         {props.page === 'jobs' ? (
           <>
@@ -204,9 +207,8 @@ export default function PreviewApp(props: Props) {
             </section>
           </>
         ) : null}
-        {props.page === 'menu' ? <MenuView menu={content.foodMenu} /> : null}
-        {props.page === 'coffee' ? (
-          <CoffeeView coffees={content.coffees} />
+        {props.page === 'menu' ? (
+          <MenuTabsView menu={content.foodMenu} coffees={content.coffees} />
         ) : null}
         {props.page === 'blog' ? (
           blogPost ? (

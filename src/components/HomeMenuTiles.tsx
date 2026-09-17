@@ -1,10 +1,10 @@
 const images = {
   coffee: {
-    url: 'https://images.ctfassets.net/cccc6mdhxqr5/2BKfgBRTqF8YDZqp8Uy5Sy/10d3d8ccafc8c6d76f2ef2c14e05f634/barista.jpg',
+    url: 'https://images.ctfassets.net/cccc6mdhxqr5/2xu6eArn5w0niWhHMBDfRr/dec69f94e7c0cfa38d492001015e585c/stage-beans.jpeg',
     alt: 'Latte art in a blue cup at Stage',
   },
   food: {
-    url: 'https://images.ctfassets.net/cccc6mdhxqr5/1lsr8NvliaaLn321Gk58BS/79804881aad4411d2dd32ad91b20fc76/WhatsApp_Image_2026-05-14_at_09.39.20__1_.jpeg',
+    url: 'https://images.ctfassets.net/cccc6mdhxqr5/4Yc1HbaY3IrIA9e3O8j9Af/6ee5cb216e915578694c0d336642dc9c/stage-sandwich.jpeg',
     alt: 'The upstairs café room at Stage',
   },
 }
@@ -20,7 +20,7 @@ export default function HomeMenuTiles({
   const tiles = [
     {
       label: 'Coffee',
-      href: preview ? '/preview/coffee' : '/coffee',
+      href: preview ? '/preview/menu?tab=coffee' : '/menu?tab=coffee',
       image: images.coffee,
     },
     {

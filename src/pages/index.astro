@@ -46,6 +46,7 @@ const cafeSchema = {
       quotedTitle
       introduction="Thoughtfully sourced and carefully made coffee, alongside house baked goods and a fresh, satisfying food menu."
     />
+    <JobsBanner jobs={content.jobs} href="/jobs/" />
     <HomeIntroduction />
     <HomeMenuTiles />
     <HomeBlogFeature post={blogPosts[0]} />
@@ -53,7 +54,6 @@ const cafeSchema = {
     <HomeRetail />
     <HomeLocation />
     <HomeFeatureCards sections={content.homeSections} />
-    <JobsBanner jobs={content.jobs} href="/jobs/" />
     <HomeSections sections={content.homeSections} events={content.events} />
   </main>
 </BaseLayout>

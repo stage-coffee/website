@@ -9,7 +9,7 @@ interface Props {
 const { preview = false } = Astro.props
 const homeHref = preview ? '/preview' : '/'
 const menuHref = preview ? '/preview/menu' : '/menu'
-const coffeeHref = preview ? '/preview/coffee' : '/coffee'
+const eventsHref = preview ? '/preview/events' : '/events/'
 const blogHref = preview ? '/preview/blog' : '/blog'
 const showBlog = preview || (await getProductionBlogPosts()).length > 0
 ---
@@ -21,7 +21,7 @@ const showBlog = preview || (await getProductionBlogPosts()).length > 0
   <nav aria-label="Main navigation">
     <a href={homeHref}>Home</a>
     <a href={menuHref}>Menu</a>
-    <a href={coffeeHref}>Coffee</a>
+    <a href={eventsHref}>Events</a>
     {showBlog && <a href={blogHref}>Blog</a>}
     <a
       class="nav-social"
