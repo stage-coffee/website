@@ -1,19 +1,30 @@
 import { useEffect, useState } from 'react'
-import { fetchSiteContent, type SiteContent } from '../lib/contentful'
+import {
+  fetchBlogPostBySlug,
+  fetchBlogPosts,
+  fetchSiteContent,
+  getRelatedBlogPosts,
+  type BlogPost,
+  type SiteContent,
+} from '../lib/contentful'
+import BlogPostView from './BlogPostView'
+import BlogIndexView from './BlogIndexView'
 import ContactForm from './ContactForm'
 import CoffeeView from './CoffeeView'
 import HeroView from './HeroView'
 import HomeFeatureCards from './HomeFeatureCards'
+import HomeBlogFeature from './HomeBlogFeature'
 import HomeIntroduction from './HomeIntroduction'
 import HomeLocation from './HomeLocation'
 import HomeMenuTiles from './HomeMenuTiles'
 import HomeOpeningHours from './HomeOpeningHours'
 import HomeRetail from './HomeRetail'
 import MenuView from './MenuView'
+import RelatedBlogPosts from './RelatedBlogPosts'
 import { EventsView, HomeSections, JobsBanner, JobsView } from './PageViews'
 
 type Props = {
-  page: 'home' | 'events' | 'jobs' | 'menu' | 'coffee'
+  page: 'home' | 'events' | 'jobs' | 'menu' | 'coffee' | 'blog'
   space: string
   token: string
   environment: string
@@ -35,6 +46,8 @@ export default function PreviewApp(props: Props) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [content, setContent] = useState<SiteContent | null>(null)
+  const [blogPost, setBlogPost] = useState<BlogPost | null>(null)
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
 
   useEffect(() => {
     setUnlocked(sessionStorage.getItem(SESSION_KEY) === 'true')
@@ -50,14 +63,41 @@ export default function PreviewApp(props: Props) {
       return
     }
 
-    setError('')
-    fetchSiteContent({
+    const config = {
       space: props.space,
       token: props.token,
       environment: props.environment,
       preview: true,
-    })
-      .then(setContent)
+    }
+    const slug =
+      props.page === 'blog'
+        ? new URLSearchParams(window.location.search).get('slug') || ''
+        : ''
+
+    setError('')
+    Promise.all([
+      fetchSiteContent(config),
+      props.page === 'home' || props.page === 'blog'
+        ? fetchBlogPosts(config)
+        : Promise.resolve([]),
+      props.page === 'blog'
+        ? slug
+          ? fetchBlogPostBySlug(config, slug)
+          : Promise.resolve(null)
+        : Promise.resolve(null),
+    ])
+      .then(([siteContent, posts, post]) => {
+        if (props.page === 'blog' && slug && !post) {
+          setError('That draft blog post could not be found.')
+          return
+        }
+        setContent(siteContent)
+        setBlogPosts(posts)
+        setBlogPost(post)
+        if (post) {
+          document.title = `${post.title} preview | Stage Espresso & Brewbar`
+        }
+      })
       .catch(() =>
         setError(
           'Draft content could not be loaded. Please refresh and try again.'
@@ -119,7 +159,7 @@ export default function PreviewApp(props: Props) {
 
   return (
     <>
-      <main>
+      <main className={props.page === 'blog' ? 'blog-page' : undefined}>
         {props.page === 'home' ? (
           <>
             <HeroView
@@ -130,6 +170,7 @@ export default function PreviewApp(props: Props) {
             />
             <HomeIntroduction />
             <HomeMenuTiles preview />
+            <HomeBlogFeature post={blogPosts[0]} preview />
             <HomeOpeningHours />
             <HomeRetail />
             <HomeLocation />
@@ -166,6 +207,19 @@ export default function PreviewApp(props: Props) {
         {props.page === 'menu' ? <MenuView menu={content.foodMenu} /> : null}
         {props.page === 'coffee' ? (
           <CoffeeView coffees={content.coffees} />
+        ) : null}
+        {props.page === 'blog' ? (
+          blogPost ? (
+            <>
+              <BlogPostView post={blogPost} />
+              <RelatedBlogPosts
+                posts={getRelatedBlogPosts(blogPosts, blogPost.id)}
+                preview
+              />
+            </>
+          ) : (
+            <BlogIndexView posts={blogPosts} preview />
+          )
         ) : null}
       </main>
       <ContactForm introduction={content.contactFormText} />

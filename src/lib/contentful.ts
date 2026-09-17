@@ -3,6 +3,7 @@ import type { Document } from '@contentful/rich-text-types'
 export type ImageAsset = {
   url: string
   title: string
+  description?: string
   width?: number
   height?: number
 }
@@ -59,6 +60,18 @@ export type Coffee = {
   retail: boolean
 }
 
+export type BlogPost = {
+  id: string
+  createdAt: string
+  firstPublishedAt: string
+  title: string
+  slug: string
+  coverImage: ImageAsset | null
+  publishedDate: string
+  shortIntro: string
+  content: Document | null
+}
+
 export type SiteContent = {
   banners: ImageAsset[]
   homeSections: HomeSection[]
@@ -70,7 +83,13 @@ export type SiteContent = {
 }
 
 type RawRecord = {
-  sys?: { id?: string; type?: string; linkType?: string; createdAt?: string }
+  sys?: {
+    id?: string
+    type?: string
+    linkType?: string
+    createdAt?: string
+    firstPublishedAt?: string
+  }
   fields?: Record<string, unknown>
   [key: string]: unknown
 }
@@ -78,6 +97,9 @@ type RawRecord = {
 type RawCollection = {
   items?: RawRecord[]
   includes?: { Entry?: RawRecord[]; Asset?: RawRecord[] }
+  total?: number
+  skip?: number
+  limit?: number
 }
 
 export type ContentfulConfig = {
@@ -131,6 +153,7 @@ const imageFrom = (input: unknown): ImageAsset | null => {
   return {
     url: file.url.startsWith('//') ? `https:${file.url}` : file.url,
     title: asString(asset?.fields?.title),
+    description: asString(asset?.fields?.description),
     width: file.details?.image?.width,
     height: file.details?.image?.height,
   }
@@ -169,7 +192,8 @@ export const resolveCollection = (collection: RawCollection): RawRecord[] => {
 
 const fetchEntries = async (
   contentType: string,
-  config: ContentfulConfig
+  config: ContentfulConfig,
+  filters: Record<string, string> = {}
 ): Promise<RawRecord[]> => {
   const host = config.preview ? 'preview.contentful.com' : 'cdn.contentful.com'
   const environment = config.environment || 'master'
@@ -177,18 +201,102 @@ const fetchEntries = async (
     access_token: config.token,
     content_type: contentType,
     include: '10',
+    limit: '1000',
+    ...filters,
   })
-  const response = await fetch(
-    `https://${host}/spaces/${config.space}/environments/${environment}/entries?${query}`
-  )
+  const entries: RawRecord[] = []
+  let skip = 0
+  let total = 0
 
-  if (!response.ok) {
-    throw new Error(
-      `Contentful ${contentType} request failed (${response.status})`
+  do {
+    query.set('skip', String(skip))
+    const response = await fetch(
+      `https://${host}/spaces/${config.space}/environments/${environment}/entries?${query}`
     )
-  }
 
-  return resolveCollection((await response.json()) as RawCollection)
+    if (!response.ok) {
+      throw new Error(
+        `Contentful ${contentType} request failed (${response.status})`
+      )
+    }
+
+    const collection = (await response.json()) as RawCollection
+    const page = resolveCollection(collection)
+    entries.push(...page)
+    total = collection.total ?? page.length
+    skip += collection.limit ?? page.length
+  } while (skip < total && skip > 0)
+
+  return entries
+}
+
+const BLOG_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+export const isValidBlogSlug = (slug: string) => BLOG_SLUG_PATTERN.test(slug)
+
+const blogPostFrom = (entry: RawRecord, index = 0): BlogPost => ({
+  id: asString(entry.sys?.id, `blog-${index}`),
+  createdAt: asString(entry.sys?.createdAt),
+  firstPublishedAt: asString(entry.sys?.firstPublishedAt),
+  title: asString(entry.fields?.title, 'Untitled post'),
+  slug: asString(entry.fields?.slug),
+  coverImage: imageFrom(entry.fields?.coverImage),
+  publishedDate: asString(entry.fields?.publishedDate),
+  shortIntro: asString(entry.fields?.shortIntro),
+  content: asDocument(entry.fields?.content),
+})
+
+const validDateValue = (value: string) =>
+  value && Number.isFinite(new Date(value).getTime()) ? value : ''
+
+export const getBlogDisplayDate = (post: BlogPost) =>
+  validDateValue(post.publishedDate) ||
+  validDateValue(post.firstPublishedAt) ||
+  validDateValue(post.createdAt)
+
+export const sortBlogPosts = (posts: BlogPost[]) =>
+  [...posts].sort((left, right) => {
+    const dateDifference =
+      new Date(getBlogDisplayDate(right) || 0).getTime() -
+      new Date(getBlogDisplayDate(left) || 0).getTime()
+    if (dateDifference) return dateDifference
+
+    const titleDifference = left.title.localeCompare(right.title, 'en-GB')
+    return titleDifference || left.id.localeCompare(right.id, 'en-GB')
+  })
+
+export const getRelatedBlogPosts = (posts: BlogPost[], currentId: string) =>
+  sortBlogPosts(posts)
+    .filter(({ id }) => id !== currentId)
+    .slice(0, 2)
+
+export const fetchBlogPosts = async (
+  config: ContentfulConfig
+): Promise<BlogPost[]> => {
+  if (!config.space || !config.token) return []
+
+  const entries = await fetchEntries('blog', config)
+  const postsBySlug = new Map<string, BlogPost>()
+  entries.forEach((entry, index) => {
+    const post = blogPostFrom(entry, index)
+    if (isValidBlogSlug(post.slug) && !postsBySlug.has(post.slug)) {
+      postsBySlug.set(post.slug, post)
+    }
+  })
+  return sortBlogPosts([...postsBySlug.values()])
+}
+
+export const fetchBlogPostBySlug = async (
+  config: ContentfulConfig,
+  slug: string
+): Promise<BlogPost | null> => {
+  if (!config.space || !config.token || !isValidBlogSlug(slug)) return null
+
+  const [entry] = await fetchEntries('blog', config, {
+    'fields.slug': slug,
+    limit: '1',
+  })
+  return entry ? blogPostFrom(entry) : null
 }
 
 export const filterCurrentEvents = (
@@ -331,3 +439,14 @@ export const getProductionContent = () =>
     token: import.meta.env.CONTENTFUL_DELIVERY_TOKEN || '',
     environment: import.meta.env.CONTENTFUL_ENVIRONMENT || 'master',
   })
+
+let productionBlogPostsPromise: Promise<BlogPost[]> | undefined
+
+export const getProductionBlogPosts = () => {
+  productionBlogPostsPromise ??= fetchBlogPosts({
+    space: import.meta.env.CONTENTFUL_SPACE_ID || '',
+    token: import.meta.env.CONTENTFUL_DELIVERY_TOKEN || '',
+    environment: import.meta.env.CONTENTFUL_ENVIRONMENT || 'master',
+  })
+  return productionBlogPostsPromise
+}

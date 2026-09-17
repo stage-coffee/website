@@ -65,17 +65,26 @@ npm run contentful:publish-coffees # update and publish the current coffee list
 
 ## Routes
 
-| Published  | Draft preview      |
-| ---------- | ------------------ |
-| `/`        | `/preview`         |
-| `/events/` | `/preview/events/` |
-| `/jobs/`   | `/preview/jobs/`   |
-| `/menu`    | `/preview/menu`    |
-| `/coffee`  | `/preview/coffee`  |
+| Published      | Draft preview               |
+| -------------- | --------------------------- |
+| `/`            | `/preview`                  |
+| `/events/`     | `/preview/events/`          |
+| `/jobs/`       | `/preview/jobs/`            |
+| `/menu`        | `/preview/menu`             |
+| `/coffee`      | `/preview/coffee`           |
+| `/blog`        | `/preview/blog`             |
+| `/blog/{slug}` | `/preview/blog?slug={slug}` |
 
 Production routes contain published Contentful content in their generated HTML.
 Preview routes fetch saved drafts from `preview.contentful.com` after the shared
 password is entered and refresh their content on every page load.
+
+The blog index and homepage feature are ordered newest first using the Blog
+entry's published date, with Contentful publication and creation dates as safe
+fallbacks. Public article share buttons use the device share sheet where
+available and otherwise copy the canonical URL. WhatsApp and other messaging
+services generate their rich previews from the article's Open Graph metadata;
+those services may temporarily cache an older title, description, or image.
 
 ## Website admin
 
@@ -147,6 +156,7 @@ create a webhook for entry and asset publish, unpublish, and deletion events:
 - URL: `https://api.github.com/repos/stage-coffee/website/dispatches`
 - Header: `Accept: application/vnd.github+json`
 - Header: `Authorization: Bearer YOUR_FINE_GRAINED_TOKEN`
+- Header: `User-Agent: StageCoffee-Contentful-Webhook`
 - Header: `X-GitHub-Api-Version: 2022-11-28`
 - Body: `{ "event_type": "contentful-publish" }`
 
@@ -156,7 +166,9 @@ this repository.
 Configure Contentful preview URLs to point homepage/banner entries to
 `https://stagecoffee.com/preview`, events to `/preview/events/`, jobs to
 `/preview/jobs/`, the Food Menu entry to `/preview/menu`, and coffee entries to
-`/preview/coffee`.
+`/preview/coffee`. Configure Blog entries with
+`https://stagecoffee.com/preview/blog?slug={entry.fields.slug}` so saved drafts
+can be opened without rebuilding the site.
 
 ## Content model
 
@@ -172,6 +184,8 @@ The site preserves the existing Contentful types:
   altitude, producer, farm, varietal, optional process, caffeine status, and
   repeatable price options, plus independent Espresso, Batch, Pour Over, and
   Retail section flags
+- `blog`: title, unique slug, optional cover image and published date, short
+  introduction, and Rich Text article content
 
 To create the Food Menu model and initial unpublished menu, put a valid
 `CONTENTFUL_MANAGEMENT_TOKEN` in `.env` and run

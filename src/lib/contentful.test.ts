@@ -1,9 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  fetchBlogPostBySlug,
+  fetchBlogPosts,
   fetchSiteContent,
   filterCurrentEvents,
+  getBlogDisplayDate,
+  getRelatedBlogPosts,
+  isValidBlogSlug,
   resolveCollection,
+  sortBlogPosts,
   sortCoffees,
+  type BlogPost,
   type Coffee,
   type StageEvent,
 } from './contentful'
@@ -38,6 +45,23 @@ const coffee = (name: string, caffeine: string, createdAt: string): Coffee => ({
   houseBatch: false,
   filter: false,
   retail: false,
+})
+
+const blogPost = (
+  id: string,
+  publishedDate = '',
+  firstPublishedAt = '',
+  createdAt = ''
+): BlogPost => ({
+  id,
+  createdAt,
+  firstPublishedAt,
+  title: id,
+  slug: id,
+  coverImage: null,
+  publishedDate,
+  shortIntro: '',
+  content: null,
 })
 
 describe('sortCoffees', () => {
@@ -93,6 +117,207 @@ describe('resolveCollection', () => {
       (item.fields?.hero as { fields: { title: string } }).fields.title
     ).toBe('Coffee')
     expect(item.fields?.missing).toBeNull()
+  })
+})
+
+describe('blog content', () => {
+  it('sorts by the effective date and selects two other newest posts', () => {
+    const posts = [
+      blogPost('created', '', '', '2026-09-14T12:00:00Z'),
+      blogPost('field-date', '2026-09-16', '', '2026-09-01T12:00:00Z'),
+      blogPost('first-published', '', '2026-09-15T12:00:00Z'),
+      blogPost('invalid', 'not-a-date'),
+    ]
+
+    expect(sortBlogPosts(posts).map(({ id }) => id)).toEqual([
+      'field-date',
+      'first-published',
+      'created',
+      'invalid',
+    ])
+    expect(getBlogDisplayDate(posts[2])).toBe('2026-09-15T12:00:00Z')
+    expect(
+      getRelatedBlogPosts(posts, 'field-date').map(({ id }) => id)
+    ).toEqual(['first-published', 'created'])
+  })
+
+  it('uses a stable title and id order when dates match', () => {
+    const posts = [blogPost('zulu'), blogPost('alpha'), blogPost('bravo')]
+    expect(sortBlogPosts(posts).map(({ id }) => id)).toEqual([
+      'alpha',
+      'bravo',
+      'zulu',
+    ])
+  })
+
+  it('maps valid posts and resolves cover and embedded image assets', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json({
+          total: 1,
+          limit: 1000,
+          items: [
+            {
+              sys: {
+                id: 'post-one',
+                createdAt: '2026-09-14T10:00:00Z',
+                firstPublishedAt: '2026-09-15T10:00:00Z',
+              },
+              fields: {
+                title: 'A Stage update',
+                slug: 'a-stage-update',
+                coverImage: {
+                  sys: { id: 'cover', type: 'Link', linkType: 'Asset' },
+                },
+                publishedDate: '2026-09-16',
+                shortIntro: 'News from Stage.',
+                content: {
+                  nodeType: 'document',
+                  data: {},
+                  content: [
+                    {
+                      nodeType: 'embedded-asset-block',
+                      data: {
+                        target: {
+                          sys: {
+                            id: 'inline-image',
+                            type: 'Link',
+                            linkType: 'Asset',
+                          },
+                        },
+                      },
+                      content: [],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+          includes: {
+            Asset: [
+              {
+                sys: { id: 'cover' },
+                fields: {
+                  title: 'Outside Stage',
+                  description: 'The exterior of Stage coffee shop',
+                  file: {
+                    url: '//images.ctfassets.net/test/cover.jpg',
+                    details: { image: { width: 1600, height: 900 } },
+                  },
+                },
+              },
+              {
+                sys: { id: 'inline-image' },
+                fields: {
+                  title: 'Autumn at Stage',
+                  file: {
+                    url: '//images.ctfassets.net/test/autumn.jpg',
+                    details: { image: { width: 1200, height: 800 } },
+                  },
+                },
+              },
+            ],
+          },
+        })
+      )
+    )
+
+    const [post] = await fetchBlogPosts({ space: 'space', token: 'token' })
+    expect(post).toMatchObject({
+      id: 'post-one',
+      createdAt: '2026-09-14T10:00:00Z',
+      firstPublishedAt: '2026-09-15T10:00:00Z',
+      title: 'A Stage update',
+      slug: 'a-stage-update',
+      publishedDate: '2026-09-16',
+      shortIntro: 'News from Stage.',
+      coverImage: {
+        url: 'https://images.ctfassets.net/test/cover.jpg',
+        title: 'Outside Stage',
+        description: 'The exterior of Stage coffee shop',
+        width: 1600,
+        height: 900,
+      },
+    })
+    expect(
+      (
+        post.content?.content[0].data.target as {
+          fields: { title: string }
+        }
+      ).fields.title
+    ).toBe('Autumn at Stage')
+  })
+
+  it('excludes missing, unsafe, and duplicate slugs', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json({
+          items: [
+            { sys: { id: 'valid' }, fields: { slug: 'valid-post' } },
+            { sys: { id: 'missing' }, fields: {} },
+            { sys: { id: 'unsafe' }, fields: { slug: '../unsafe' } },
+            { sys: { id: 'duplicate' }, fields: { slug: 'valid-post' } },
+          ],
+        })
+      )
+    )
+
+    const posts = await fetchBlogPosts({ space: 'space', token: 'token' })
+    expect(posts.map(({ id }) => id)).toEqual(['valid'])
+    expect(isValidBlogSlug('the-stage-blog')).toBe(true)
+    expect(isValidBlogSlug('The Stage Blog')).toBe(false)
+  })
+
+  it('uses the Preview API and filters by slug for a draft lookup', async () => {
+    const fetchMock = vi.fn(async (_input: string | URL | Request) =>
+      Response.json({
+        items: [
+          {
+            sys: { id: 'draft' },
+            fields: { title: 'Draft post', slug: 'draft-post' },
+          },
+        ],
+      })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const post = await fetchBlogPostBySlug(
+      { space: 'space', token: 'preview-token', preview: true },
+      'draft-post'
+    )
+    const requestUrl = new URL(String(fetchMock.mock.calls[0][0]))
+    expect(requestUrl.host).toBe('preview.contentful.com')
+    expect(requestUrl.searchParams.get('fields.slug')).toBe('draft-post')
+    expect(requestUrl.searchParams.get('limit')).toBe('1')
+    expect(post?.title).toBe('Draft post')
+  })
+
+  it('returns safe defaults and reports Contentful failures', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json({ items: [{ fields: { slug: 'post' } }] })
+      )
+    )
+    await expect(
+      fetchBlogPostBySlug({ space: 'space', token: 'token' }, 'post')
+    ).resolves.toMatchObject({
+      title: 'Untitled post',
+      coverImage: null,
+      publishedDate: '',
+      shortIntro: '',
+      content: null,
+    })
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('', { status: 503 }))
+    )
+    await expect(
+      fetchBlogPosts({ space: 'space', token: 'token' })
+    ).rejects.toThrow('Contentful blog request failed (503)')
   })
 })
 

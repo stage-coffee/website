@@ -1,0 +1,54 @@
+---
+interface Props {
+  title: string
+  text: string
+  url: string
+}
+
+const { title, text, url } = Astro.props
+---
+
+<div class="blog-share section-shell" data-share-container>
+  <button
+    class="button"
+    type="button"
+    data-share-button
+    data-share-title={title}
+    data-share-text={text}
+    data-share-url={url}>Share this post</button
+  >
+  <p class="blog-share-status" aria-live="polite" data-share-status></p>
+</div>
+
+<script>
+  import { shareBlogPost } from '../lib/share'
+
+  document
+    .querySelectorAll<HTMLElement>('[data-share-container]')
+    .forEach((container) => {
+      const button = container.querySelector<HTMLButtonElement>(
+        '[data-share-button]'
+      )
+      const status = container.querySelector<HTMLElement>('[data-share-status]')
+      if (!button || !status || button.dataset.ready) return
+      button.dataset.ready = 'true'
+
+      button.addEventListener('click', async () => {
+        const share = {
+          title: button.dataset.shareTitle || document.title,
+          text: button.dataset.shareText || '',
+          url: button.dataset.shareUrl || window.location.href,
+        }
+        status.textContent = ''
+
+        try {
+          const result = await shareBlogPost(share)
+          if (result === 'shared') status.textContent = 'Post shared.'
+          if (result === 'copied') status.textContent = 'Link copied.'
+        } catch {
+          status.textContent =
+            'The link could not be copied. Please copy it from your browser.'
+        }
+      })
+    })
+</script>

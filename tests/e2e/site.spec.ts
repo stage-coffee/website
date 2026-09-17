@@ -8,6 +8,9 @@ test('public routes render useful headings and metadata', async ({ page }) => {
       'content',
       /.+/
     )
+    await expect(
+      page.getByRole('navigation').getByRole('link', { name: 'Contact' })
+    ).toHaveCount(0)
   }
 })
 
@@ -351,7 +354,30 @@ test('preview content is gated and excluded from indexing', async ({
                     },
                   },
                 ]
-              : []
+              : type === 'blog'
+                ? [
+                    {
+                      sys: {
+                        id: 'draft-home-blog',
+                        createdAt: '2026-09-17T12:00:00Z',
+                      },
+                      fields: {
+                        title: 'Latest draft from Stage',
+                        slug: 'latest-draft-from-stage',
+                        shortIntro: 'A draft update for the homepage.',
+                        coverImage: {
+                          fields: {
+                            title: 'Coffee at Stage',
+                            file: {
+                              url: '//images.ctfassets.net/test/home-blog.jpg',
+                              details: { image: { width: 800, height: 600 } },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  ]
+                : []
     await route.fulfill({ json: { items } })
   })
 
@@ -372,6 +398,12 @@ test('preview content is gated and excluded from indexing', async ({
   await expect(
     page.getByRole('link', { name: 'Coffee', exact: true })
   ).toHaveAttribute('href', '/preview/coffee')
+  await expect(
+    page.getByRole('link', { name: 'Blog', exact: true })
+  ).toHaveAttribute('href', '/preview/blog')
+  await expect(
+    page.getByRole('navigation').getByRole('link', { name: 'Contact' })
+  ).toHaveCount(0)
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
     'content',
     'noindex, nofollow'
@@ -401,14 +433,34 @@ test('preview content is gated and excluded from indexing', async ({
     'href',
     '/preview/menu'
   )
-  expect(previewRequests).toBe(6)
+  await expect(
+    page.getByRole('heading', { name: 'Latest from Stage' })
+  ).toHaveCount(0)
+  await expect(
+    page.getByRole('heading', { name: 'Latest draft from Stage' })
+  ).toBeVisible()
+  const [homeBlogWidth, introductionWidth] = await Promise.all([
+    page
+      .locator('.home-blog .blog-card')
+      .evaluate((element) => element.getBoundingClientRect().width),
+    page
+      .locator('.home-introduction-panel')
+      .evaluate((element) => element.getBoundingClientRect().width),
+  ])
+  expect(Math.abs(homeBlogWidth - introductionWidth)).toBeLessThan(1)
+  const [homeBlogImage, homeBlogCopy] = await Promise.all([
+    page.locator('.home-blog .blog-card-media').boundingBox(),
+    page.locator('.home-blog .blog-card-copy').boundingBox(),
+  ])
+  expect(homeBlogImage!.y).toBeLessThan(homeBlogCopy!.y)
+  expect(previewRequests).toBe(7)
 
   await page.reload()
   await expect(
     page.getByRole('heading', { name: 'Saved draft section' })
   ).toBeVisible()
   await expect(page.getByLabel('Password')).toHaveCount(0)
-  expect(previewRequests).toBe(12)
+  expect(previewRequests).toBe(14)
 
   await page.getByRole('link', { name: 'Menu', exact: true }).click()
   await expect(page).toHaveURL(/\/preview\/menu$/)
@@ -432,7 +484,7 @@ test('preview content is gated and excluded from indexing', async ({
   await expect(
     page.locator('.menu-content em').filter({ hasText: 'Allergens: Gluten.' })
   ).toHaveCSS('font-style', 'italic')
-  expect(previewRequests).toBe(18)
+  expect(previewRequests).toBe(20)
   await expect(
     page.getByRole('link', { name: 'Home', exact: true })
   ).toHaveAttribute('href', '/preview')
@@ -477,7 +529,223 @@ test('preview content is gated and excluded from indexing', async ({
   await coffeeCard.locator('summary').click()
   await expect(coffeeCard.getByText('Peach and chocolate.')).toBeVisible()
   await expect(coffeeCard.getByText('250g beans — £14.00')).toBeVisible()
-  expect(previewRequests).toBe(24)
+  expect(previewRequests).toBe(26)
+})
+
+test('blog preview is gated, resolves a draft slug, and handles missing posts', async ({
+  page,
+}) => {
+  let previewRequests = 0
+  await page.route('https://images.ctfassets.net/**', (route) =>
+    route.fulfill({ status: 200, contentType: 'image/png', body: '' })
+  )
+  await page.route(/\/preview\/blog(?:\?.*)?$/, async (route) => {
+    const response = await route.fetch()
+    const body = (await response.text())
+      .replace(
+        /&quot;space&quot;:\[0,&quot;.*?&quot;\]/,
+        '&quot;space&quot;:[0,&quot;test-space&quot;]'
+      )
+      .replace(
+        /&quot;token&quot;:\[0,&quot;.*?&quot;\]/,
+        '&quot;token&quot;:[0,&quot;test-preview-token&quot;]'
+      )
+      .replace(
+        /&quot;passwordHash&quot;:\[0,&quot;.*?&quot;\]/,
+        '&quot;passwordHash&quot;:[0,&quot;fc854058676fcddbf002517d0491768e3bc8fad2647745a674eb57e68dbbded1&quot;]'
+      )
+    await route.fulfill({ response, body })
+  })
+  await page.route('https://preview.contentful.com/**', async (route) => {
+    previewRequests += 1
+    const url = new URL(route.request().url())
+    const type = url.searchParams.get('content_type')
+    const slug = url.searchParams.get('fields.slug')
+    if (type === 'websiteOrder') {
+      await route.fulfill({ json: { items: [{ fields: {} }] } })
+      return
+    }
+    if (type !== 'blog') {
+      await route.fulfill({ json: { items: [] } })
+      return
+    }
+
+    const posts = [
+      {
+        sys: {
+          id: 'draft-blog',
+          createdAt: '2026-09-16T09:00:00Z',
+        },
+        fields: {
+          title: 'The Stage Blog',
+          slug: 'the-stage-blog',
+          publishedDate: '2026-09-16',
+          shortIntro: 'A short introduction to the Stage blog.',
+          coverImage: {
+            sys: { id: 'cover', type: 'Link', linkType: 'Asset' },
+          },
+          content: {
+            nodeType: 'document',
+            data: {},
+            content: [
+              {
+                nodeType: 'heading-1',
+                data: {},
+                content: [
+                  {
+                    nodeType: 'text',
+                    value: 'A little update from Stage',
+                    marks: [],
+                    data: {},
+                  },
+                ],
+              },
+              {
+                nodeType: 'embedded-asset-block',
+                data: {
+                  target: {
+                    sys: {
+                      id: 'article-image',
+                      type: 'Link',
+                      linkType: 'Asset',
+                    },
+                  },
+                },
+                content: [],
+              },
+            ],
+          },
+        },
+      },
+      {
+        sys: { id: 'newer-draft', createdAt: '2026-09-18T09:00:00Z' },
+        fields: {
+          title: 'A newer draft',
+          slug: 'a-newer-draft',
+          shortIntro: 'The newest saved post.',
+        },
+      },
+      {
+        sys: { id: 'older-draft', createdAt: '2026-09-14T09:00:00Z' },
+        fields: {
+          title: 'An older post',
+          slug: 'an-older-post',
+          shortIntro: 'Another post from Stage.',
+        },
+      },
+    ]
+    const selectedPosts = slug
+      ? posts.filter((post) => post.fields.slug === slug)
+      : posts
+
+    await route.fulfill({
+      json: {
+        items: selectedPosts,
+        includes: {
+          Asset: [
+            {
+              sys: { id: 'cover' },
+              fields: {
+                title: 'Outside Stage',
+                description: 'Stage coffee shop from outside',
+                file: {
+                  url: '//images.ctfassets.net/test/blog-cover.jpg',
+                  details: { image: { width: 1600, height: 900 } },
+                },
+              },
+            },
+            {
+              sys: { id: 'article-image' },
+              fields: {
+                title: 'Autumn coffee at Stage',
+                file: {
+                  url: '//images.ctfassets.net/test/blog-article.jpg',
+                  details: { image: { width: 1200, height: 800 } },
+                },
+              },
+            },
+          ],
+        },
+      },
+    })
+  })
+
+  await page.goto('/preview/blog?slug=the-stage-blog')
+  await expect(page.getByLabel('Password')).toBeVisible()
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+    'content',
+    'noindex, nofollow'
+  )
+  expect(previewRequests).toBe(0)
+
+  await page.getByLabel('Password').fill('stage-test-preview')
+  await page.getByRole('button', { name: 'Submit' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'The Stage Blog', exact: true })
+  ).toBeVisible()
+  await expect(page.locator('.blog-page')).toHaveCSS(
+    'background-color',
+    'rgb(247, 240, 227)'
+  )
+  await expect(page.locator('.blog-content')).toHaveCSS(
+    'background-color',
+    'rgb(255, 253, 248)'
+  )
+  await expect(page.getByText('16 September 2026')).toBeVisible()
+  await expect(
+    page.getByText('A short introduction to the Stage blog.')
+  ).toBeVisible()
+  await expect(
+    page.getByAltText('Stage coffee shop from outside')
+  ).toBeVisible()
+  await expect(page.getByAltText('Autumn coffee at Stage')).toBeVisible()
+  await expect(
+    page.getByRole('heading', {
+      name: 'A little update from Stage',
+      level: 2,
+    })
+  ).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'More from Stage' })
+  ).toBeVisible()
+  await expect(page.getByText('A newer draft')).toBeVisible()
+  await expect(page.getByText('An older post')).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Share this post' })
+  ).toHaveCount(0)
+  await expect(
+    page.getByRole('link', { name: 'View all posts' })
+  ).toHaveAttribute('href', '/preview/blog')
+  expect(previewRequests).toBe(8)
+
+  const articleWidth = await page
+    .locator('.blog-content')
+    .evaluate((element) => element.getBoundingClientRect().width)
+  expect(articleWidth).toBeLessThanOrEqual(1024)
+
+  await page.reload()
+  await expect(page.getByLabel('Password')).toHaveCount(0)
+  await expect(
+    page.getByRole('heading', { name: 'The Stage Blog', exact: true })
+  ).toBeVisible()
+  expect(previewRequests).toBe(16)
+
+  await page.goto('/preview/blog?slug=unknown-post')
+  await expect(page.getByRole('alert')).toHaveText(
+    'That draft blog post could not be found.'
+  )
+  await page.goto('/preview/blog')
+  await expect(page.getByRole('heading', { name: 'From Stage' })).toBeVisible()
+  await expect(page.locator('.blog-page')).toHaveCSS(
+    'background-color',
+    'rgb(247, 240, 227)'
+  )
+  await expect(page.locator('.blog-card')).toHaveCount(3)
+  await expect(page.locator('.blog-card h2')).toHaveText([
+    'A newer draft',
+    'The Stage Blog',
+    'An older post',
+  ])
 })
 
 test('contact form validates locally without sending a message', async ({

@@ -2,15 +2,19 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import Hero from '../components/Hero.astro'
 import HomeFeatureCards from '../components/HomeFeatureCards'
+import HomeBlogFeature from '../components/HomeBlogFeature'
 import HomeIntroduction from '../components/HomeIntroduction'
 import HomeLocation from '../components/HomeLocation'
 import HomeMenuTiles from '../components/HomeMenuTiles'
 import HomeOpeningHours from '../components/HomeOpeningHours'
 import HomeRetail from '../components/HomeRetail'
 import { HomeSections, JobsBanner } from '../components/PageViews'
-import { getProductionContent } from '../lib/contentful'
+import { getProductionBlogPosts, getProductionContent } from '../lib/contentful'
 
-const content = await getProductionContent()
+const [content, blogPosts] = await Promise.all([
+  getProductionContent(),
+  getProductionBlogPosts(),
+])
 const description =
   'Independent speciality coffee, events and a warm welcome at Stage Espresso & Brewbar in central Leeds.'
 const cafeSchema = {
@@ -44,6 +48,7 @@ const cafeSchema = {
     />
     <HomeIntroduction />
     <HomeMenuTiles />
+    <HomeBlogFeature post={blogPosts[0]} />
     <HomeOpeningHours />
     <HomeRetail />
     <HomeLocation />

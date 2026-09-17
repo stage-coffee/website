@@ -1,5 +1,6 @@
 ---
 import darkLogo from '../assets/logo-wordmark-dark.png'
+import { getProductionBlogPosts } from '../lib/contentful'
 
 interface Props {
   preview?: boolean
@@ -9,6 +10,8 @@ const { preview = false } = Astro.props
 const homeHref = preview ? '/preview' : '/'
 const menuHref = preview ? '/preview/menu' : '/menu'
 const coffeeHref = preview ? '/preview/coffee' : '/coffee'
+const blogHref = preview ? '/preview/blog' : '/blog'
+const showBlog = preview || (await getProductionBlogPosts()).length > 0
 ---
 
 <header class="site-header">
@@ -19,7 +22,7 @@ const coffeeHref = preview ? '/preview/coffee' : '/coffee'
     <a href={homeHref}>Home</a>
     <a href={menuHref}>Menu</a>
     <a href={coffeeHref}>Coffee</a>
-    <a href="#contact">Contact</a>
+    {showBlog && <a href={blogHref}>Blog</a>}
     <a
       class="nav-social"
       href="https://www.instagram.com/stagecoffeeleeds/"

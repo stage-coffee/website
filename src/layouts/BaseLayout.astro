@@ -10,6 +10,12 @@ interface Props {
   contact?: Document | null
   noindex?: boolean
   structuredData?: Record<string, unknown> | Record<string, unknown>[]
+  image?: string
+  imageAlt?: string
+  imageWidth?: number
+  imageHeight?: number
+  ogType?: 'website' | 'article'
+  publishedTime?: string
 }
 
 const {
@@ -18,6 +24,12 @@ const {
   contact,
   noindex = false,
   structuredData,
+  image,
+  imageAlt,
+  imageWidth,
+  imageHeight,
+  ogType = 'website',
+  publishedTime,
 } = Astro.props
 const canonical = new URL(Astro.url.pathname, Astro.site)
 ---
@@ -35,12 +47,33 @@ const canonical = new URL(Astro.url.pathname, Astro.site)
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content="Stage Espresso & Brewbar" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    {image && <meta property="og:image" content={image} />}
+    {image && imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+    {
+      image && imageWidth && (
+        <meta property="og:image:width" content={String(imageWidth)} />
+      )
+    }
+    {
+      image && imageHeight && (
+        <meta property="og:image:height" content={String(imageHeight)} />
+      )
+    }
+    {
+      ogType === 'article' && publishedTime && (
+        <meta property="article:published_time" content={publishedTime} />
+      )
+    }
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {image && <meta name="twitter:image" content={image} />}
+    {image && imageAlt && <meta name="twitter:image:alt" content={imageAlt} />}
     {
       structuredData && (
         <script

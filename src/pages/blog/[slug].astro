@@ -1,0 +1,79 @@
+---
+import BlogPostView from '../../components/BlogPostView'
+import RelatedBlogPosts from '../../components/RelatedBlogPosts'
+import ShareButton from '../../components/ShareButton.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import {
+  getProductionBlogPosts,
+  getProductionContent,
+  getBlogDisplayDate,
+  getRelatedBlogPosts,
+  type BlogPost,
+} from '../../lib/contentful'
+import type { Document } from '@contentful/rich-text-types'
+
+export async function getStaticPaths() {
+  const [posts, content] = await Promise.all([
+    getProductionBlogPosts(),
+    getProductionContent(),
+  ])
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: {
+      post,
+      relatedPosts: getRelatedBlogPosts(posts, post.id),
+      contact: content.contactFormText,
+    },
+  }))
+}
+
+interface Props {
+  post: BlogPost
+  relatedPosts: BlogPost[]
+  contact: Document | null
+}
+
+const { post, relatedPosts, contact } = Astro.props
+const description =
+  post.shortIntro || 'News and updates from Stage Espresso & Brewbar in Leeds.'
+const canonical = new URL(Astro.url.pathname, Astro.site).toString()
+const datePublished = getBlogDisplayDate(post)
+const imageAlt =
+  post.coverImage?.description ||
+  post.coverImage?.title ||
+  (post.coverImage ? `Cover image for ${post.title}` : undefined)
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.title,
+  description,
+  ...(datePublished ? { datePublished } : {}),
+  ...(post.coverImage ? { image: post.coverImage.url } : {}),
+  mainEntityOfPage: canonical,
+  publisher: {
+    '@type': 'Organization',
+    name: 'Stage Espresso & Brewbar',
+    url: 'https://stagecoffee.com/',
+  },
+}
+---
+
+<BaseLayout
+  title={`${post.title} | Stage Espresso & Brewbar`}
+  description={description}
+  contact={contact}
+  image={post.coverImage?.url}
+  imageAlt={imageAlt}
+  imageWidth={post.coverImage?.width}
+  imageHeight={post.coverImage?.height}
+  ogType="article"
+  publishedTime={datePublished || undefined}
+  structuredData={structuredData}
+>
+  <main class="blog-page">
+    <BlogPostView post={post} />
+    <ShareButton title={post.title} text={description} url={canonical} />
+    <RelatedBlogPosts posts={relatedPosts} />
+  </main>
+</BaseLayout>

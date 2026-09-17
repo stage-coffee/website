@@ -134,13 +134,12 @@ export function EventsView({ events }: { events: StageEvent[] }) {
             </div>
           ) : null}
           <div className="card-copy">
+            <h2>{event.name}</h2>
             <time className="event-date" dateTime={event.startTime}>
               {formatDate(event.startTime, true)}
+              <br />
+              {formatTime(event.startTime)} - {formatTime(event.endTime)}
             </time>
-            <h2>{event.name}</h2>
-            <p className="event-time">
-              {formatTime(event.startTime)}–{formatTime(event.endTime)}
-            </p>
             <RichText document={event.description} />
           </div>
         </article>
