@@ -15,6 +15,7 @@ export default function HomeBlogFeature({
       <div className="section-shell">
         <BlogCard
           post={post}
+          wide
           href={
             preview
               ? `/preview/blog?slug=${encodeURIComponent(post.slug)}`

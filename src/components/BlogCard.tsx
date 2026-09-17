@@ -27,10 +27,12 @@ export default function BlogCard({
   post,
   href,
   headingLevel = 2,
+  wide = false,
 }: {
   post: BlogPost
   href: string
   headingLevel?: 2 | 3
+  wide?: boolean
 }) {
   const dateValue = getBlogDisplayDate(post)
   const date = formatBlogDate(dateValue)
@@ -48,14 +50,18 @@ export default function BlogCard({
         {post.coverImage ? (
           <div className="blog-card-media">
             <img
-              src={blogImageUrl(post.coverImage.url, 960)}
-              srcSet={[480, 720, 960]
+              src={blogImageUrl(post.coverImage.url, wide ? 1440 : 960)}
+              srcSet={(wide ? [640, 960, 1440] : [480, 720, 960])
                 .map(
                   (width) =>
                     `${blogImageUrl(post.coverImage!.url, width)} ${width}w`
                 )
                 .join(', ')}
-              sizes="(min-width: 64rem) 25vw, (min-width: 40rem) 45vw, calc(100vw - 2rem)"
+              sizes={
+                wide
+                  ? '(min-width: 80rem) 78rem, calc(100vw - 2rem)'
+                  : '(min-width: 64rem) 25vw, (min-width: 40rem) 45vw, calc(100vw - 2rem)'
+              }
               width={post.coverImage.width}
               height={post.coverImage.height}
               alt={imageAlt}

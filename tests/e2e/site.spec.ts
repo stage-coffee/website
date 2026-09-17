@@ -453,6 +453,14 @@ test('preview content is gated and excluded from indexing', async ({
     page.locator('.home-blog .blog-card-copy').boundingBox(),
   ])
   expect(homeBlogImage!.y).toBeLessThan(homeBlogCopy!.y)
+  await expect(page.locator('.home-blog .blog-card-media img')).toHaveAttribute(
+    'src',
+    /w=1440/
+  )
+  await expect(page.locator('.home-blog .blog-card-media img')).toHaveAttribute(
+    'sizes',
+    '(min-width: 80rem) 78rem, calc(100vw - 2rem)'
+  )
   expect(previewRequests).toBe(7)
 
   await page.reload()
