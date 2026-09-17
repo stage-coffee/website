@@ -4,6 +4,7 @@ import type {
   StageEvent,
   StageJob,
 } from '../lib/contentful'
+import AddToCalendar from './AddToCalendar'
 import RichText from './RichText'
 
 const imageUrl = (image: ImageAsset, width: number) =>
@@ -115,60 +116,6 @@ export function HomeSections({
   )
 }
 
-const stageAddress =
-  'Stage Espresso & Brewbar, 41 Great George Street, Leeds, LS1 3BB'
-
-const calendarTimestamp = (value: string) =>
-  new Date(value)
-    .toISOString()
-    .replace(/[-:]/g, '')
-    .replace(/\.\d{3}Z$/, 'Z')
-
-const escapeCalendarText = (value: string) =>
-  value
-    .replace(/\\/g, '\\\\')
-    .replace(/\n/g, '\\n')
-    .replace(/,/g, '\\,')
-    .replace(/;/g, '\\;')
-
-const calendarLinksFor = (event: StageEvent) => {
-  const start = calendarTimestamp(event.startTime)
-  const end = calendarTimestamp(event.endTime || event.startTime)
-  const eventUrl = event.readMoreLink || 'https://stagecoffee.com/events/'
-  const googleParams = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: event.name,
-    dates: `${start}/${end}`,
-    details: `More information: ${eventUrl}`,
-    location: stageAddress,
-  })
-  const calendarFile = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//Stage Espresso & Brewbar//Events//EN',
-    'BEGIN:VEVENT',
-    `UID:${event.id}@stagecoffee.com`,
-    `DTSTAMP:${calendarTimestamp(new Date().toISOString())}`,
-    `DTSTART:${start}`,
-    `DTEND:${end}`,
-    `SUMMARY:${escapeCalendarText(event.name)}`,
-    `DESCRIPTION:${escapeCalendarText(`More information: ${eventUrl}`)}`,
-    `LOCATION:${escapeCalendarText(stageAddress)}`,
-    `URL:${eventUrl}`,
-    'END:VEVENT',
-    'END:VCALENDAR',
-  ].join('\r\n')
-
-  return {
-    google: `https://calendar.google.com/calendar/render?${googleParams.toString()}`,
-    file: `data:text/calendar;charset=utf-8,${encodeURIComponent(calendarFile)}`,
-    filename: `${event.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')}.ics`,
-  }
-}
-
 function EventCards({
   events,
   showCalendar = false,
@@ -178,80 +125,32 @@ function EventCards({
 }) {
   return (
     <div className="card-grid">
-      {events.map((event) => {
-        const calendar = showCalendar ? calendarLinksFor(event) : null
-        const calendarDialogId = `event-calendar-${event.id}`
-        const calendarDialogTitleId = `${calendarDialogId}-title`
-        return (
-          <article className="event-card" key={event.id}>
-            {event.image ? (
-              <div className="card-media">
-                <EditorialImage image={event.image} />
-              </div>
-            ) : null}
-            <div className="card-copy">
-              <h2>{event.name}</h2>
-              <time className="event-date" dateTime={event.startTime}>
-                {formatDate(event.startTime, true)}
-                <br />
-                {formatTime(event.startTime)} - {formatTime(event.endTime)}
-              </time>
-              <RichText document={event.description} />
-              <div className="event-card-actions">
-                {calendar ? (
-                  <>
-                    <button
-                      className="event-calendar-button"
-                      type="button"
-                      popoverTarget={calendarDialogId}
-                    >
-                      Add to Calendar
-                    </button>
-                    <div
-                      className="event-calendar-options"
-                      id={calendarDialogId}
-                      popover="auto"
-                      role="dialog"
-                      aria-labelledby={calendarDialogTitleId}
-                    >
-                      <div className="event-calendar-dialog-header">
-                        <h3 id={calendarDialogTitleId}>Add to Calendar</h3>
-                        <button
-                          className="event-calendar-close"
-                          type="button"
-                          popoverTarget={calendarDialogId}
-                          popoverTargetAction="hide"
-                          aria-label="Close calendar options"
-                        >
-                          ×
-                        </button>
-                      </div>
-                      <p>{event.name}</p>
-                      <div className="event-calendar-links">
-                        <a
-                          href={calendar.google}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Google Calendar
-                        </a>
-                        <a href={calendar.file} download={calendar.filename}>
-                          Apple, Outlook or another app (.ics)
-                        </a>
-                      </div>
-                    </div>
-                  </>
-                ) : null}
-                {event.readMoreLink ? (
-                  <a className="event-read-more" href={event.readMoreLink}>
-                    Read more <span aria-hidden="true">→</span>
-                  </a>
-                ) : null}
-              </div>
+      {events.map((event) => (
+        <article className="event-card" key={event.id}>
+          {event.image ? (
+            <div className="card-media">
+              <EditorialImage image={event.image} />
             </div>
-          </article>
-        )
-      })}
+          ) : null}
+          <div className="card-copy">
+            <h2>{event.name}</h2>
+            <time className="event-date" dateTime={event.startTime}>
+              {formatDate(event.startTime, true)}
+              <br />
+              {formatTime(event.startTime)} - {formatTime(event.endTime)}
+            </time>
+            <RichText document={event.description} />
+            <div className="event-card-actions">
+              {showCalendar ? <AddToCalendar event={event} /> : null}
+              {event.readMoreLink ? (
+                <a className="event-read-more" href={event.readMoreLink}>
+                  Read more <span aria-hidden="true">→</span>
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </article>
+      ))}
     </div>
   )
 }

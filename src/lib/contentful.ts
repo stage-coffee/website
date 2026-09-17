@@ -71,6 +71,7 @@ export type BlogPost = {
   publishedDate: string
   shortIntro: string
   content: Document | null
+  associatedEvent: StageEvent | null
 }
 
 export type SiteContent = {
@@ -237,17 +238,45 @@ const BLOG_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 export const isValidBlogSlug = (slug: string) => BLOG_SLUG_PATTERN.test(slug)
 
-const blogPostFrom = (entry: RawRecord, index = 0): BlogPost => ({
-  id: asString(entry.sys?.id, `blog-${index}`),
-  createdAt: asString(entry.sys?.createdAt),
-  firstPublishedAt: asString(entry.sys?.firstPublishedAt),
-  title: asString(entry.fields?.title, 'Untitled post'),
-  slug: asString(entry.fields?.slug),
-  coverImage: imageFrom(entry.fields?.coverImage),
-  publishedDate: asString(entry.fields?.publishedDate),
-  shortIntro: asString(entry.fields?.shortIntro),
-  content: asDocument(entry.fields?.content),
-})
+const eventFrom = (input: unknown, index = 0): StageEvent | null => {
+  if (!isRecord(input)) return null
+  const startTime = asString(input.fields?.startTime)
+  return {
+    id: asString(input.sys?.id, `event-${index}`),
+    name: asString(input.fields?.displayName, 'Untitled event'),
+    description: asDocument(input.fields?.description),
+    image: imageFrom(input.fields?.image),
+    startTime,
+    endTime: asString(input.fields?.endTime, startTime),
+    readMoreLink: asString(input.fields?.readMoreLink),
+  }
+}
+
+const blogPostFrom = (entry: RawRecord, index = 0): BlogPost => {
+  const explicitEvent =
+    entry.fields?.associatedEvent ??
+    entry.fields?.event ??
+    entry.fields?.relatedEvent
+  const linkedEvent =
+    explicitEvent ??
+    Object.values(entry.fields ?? {}).find(
+      (value) =>
+        isRecord(value) && Boolean(value.fields && 'startTime' in value.fields)
+    )
+
+  return {
+    id: asString(entry.sys?.id, `blog-${index}`),
+    createdAt: asString(entry.sys?.createdAt),
+    firstPublishedAt: asString(entry.sys?.firstPublishedAt),
+    title: asString(entry.fields?.title, 'Untitled post'),
+    slug: asString(entry.fields?.slug),
+    coverImage: imageFrom(entry.fields?.coverImage),
+    publishedDate: asString(entry.fields?.publishedDate),
+    shortIntro: asString(entry.fields?.shortIntro),
+    content: asDocument(entry.fields?.content),
+    associatedEvent: eventFrom(linkedEvent, index),
+  }
+}
 
 const validDateValue = (value: string) =>
   value && Number.isFinite(new Date(value).getTime()) ? value : ''
@@ -389,18 +418,9 @@ export const fetchSiteContent = async (
     ? banner.fields.images
     : []
 
-  const events = eventEntries.map((entry, index) => {
-    const startTime = asString(entry.fields?.startTime)
-    return {
-      id: asString(entry.sys?.id, `event-${index}`),
-      name: asString(entry.fields?.displayName, 'Untitled event'),
-      description: asDocument(entry.fields?.description),
-      image: imageFrom(entry.fields?.image),
-      startTime,
-      endTime: asString(entry.fields?.endTime, startTime),
-      readMoreLink: asString(entry.fields?.readMoreLink),
-    }
-  })
+  const events = eventEntries
+    .map(eventFrom)
+    .filter((event): event is StageEvent => Boolean(event))
 
   return {
     banners: bannerAssets.map(imageFrom).filter(Boolean) as ImageAsset[],

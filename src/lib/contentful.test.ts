@@ -63,6 +63,7 @@ const blogPost = (
   publishedDate,
   shortIntro: '',
   content: null,
+  associatedEvent: null,
 })
 
 describe('sortCoffees', () => {

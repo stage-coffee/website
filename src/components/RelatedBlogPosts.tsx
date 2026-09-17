@@ -19,6 +19,7 @@ export default function RelatedBlogPosts({
                 key={post.id}
                 post={post}
                 headingLevel={3}
+                showCalendar={false}
                 href={
                   preview
                     ? `/preview/blog?slug=${encodeURIComponent(post.slug)}`

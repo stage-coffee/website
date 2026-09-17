@@ -1,4 +1,5 @@
 import { getBlogDisplayDate, type BlogPost } from '../lib/contentful'
+import AddToCalendar from './AddToCalendar'
 import { formatBlogDate } from './BlogCard'
 import RichText from './RichText'
 
@@ -31,6 +32,11 @@ export default function BlogPostView({ post }: { post: BlogPost }) {
         <h1>{post.title}</h1>
         {post.shortIntro ? (
           <p className="blog-post-intro">{post.shortIntro}</p>
+        ) : null}
+        {post.associatedEvent ? (
+          <div className="blog-post-calendar">
+            <AddToCalendar event={post.associatedEvent} />
+          </div>
         ) : null}
       </header>
 

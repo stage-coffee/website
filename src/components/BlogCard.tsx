@@ -1,4 +1,5 @@
 import { getBlogDisplayDate, type BlogPost } from '../lib/contentful'
+import AddToCalendar from './AddToCalendar'
 
 export const formatBlogDate = (value: string) => {
   if (!value) return ''
@@ -28,11 +29,13 @@ export default function BlogCard({
   href,
   headingLevel = 2,
   wide = false,
+  showCalendar = true,
 }: {
   post: BlogPost
   href: string
   headingLevel?: 2 | 3
   wide?: boolean
+  showCalendar?: boolean
 }) {
   const dateValue = getBlogDisplayDate(post)
   const date = formatBlogDate(dateValue)
@@ -46,8 +49,8 @@ export default function BlogCard({
     <article
       className={`blog-card${post.coverImage ? '' : ' blog-card-text-only'}`}
     >
-      <a className="blog-card-link" href={href}>
-        {post.coverImage ? (
+      {post.coverImage ? (
+        <a className="blog-card-media-link" href={href}>
           <div className="blog-card-media">
             <img
               src={blogImageUrl(post.coverImage.url, wide ? 1440 : 960)}
@@ -69,14 +72,25 @@ export default function BlogCard({
               decoding="async"
             />
           </div>
-        ) : null}
-        <div className="blog-card-copy">
-          {date ? <time dateTime={dateValue}>{date}</time> : null}
-          <Heading>{post.title}</Heading>
-          {post.shortIntro ? <p>{post.shortIntro}</p> : null}
-          <span className="blog-card-action">Read more</span>
+        </a>
+      ) : null}
+      <div className="blog-card-copy">
+        {date ? <time dateTime={dateValue}>{date}</time> : null}
+        <Heading>
+          <a className="blog-card-title-link" href={href}>
+            {post.title}
+          </a>
+        </Heading>
+        {post.shortIntro ? <p>{post.shortIntro}</p> : null}
+        <div className="blog-card-actions">
+          {showCalendar && post.associatedEvent ? (
+            <AddToCalendar event={post.associatedEvent} />
+          ) : null}
+          <a className="blog-card-action" href={href}>
+            Read more
+          </a>
         </div>
-      </a>
+      </div>
     </article>
   )
 }
