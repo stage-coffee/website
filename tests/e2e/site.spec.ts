@@ -796,7 +796,7 @@ test('blog preview is gated, resolves a draft slug, and handles missing posts', 
   ])
 })
 
-test('contact form validates locally without sending a message', async ({
+test('contact form validates locally and filters simple bots', async ({
   page,
 }) => {
   let intercepted = false
@@ -805,6 +805,7 @@ test('contact form validates locally without sending a message', async ({
     await route.fulfill({ status: 204, body: '' })
   })
   await page.goto('/')
+  expect(await page.content()).not.toContain('docs.google.com/forms')
   const form = page.locator('.contact-form')
   const contactCard = page.locator('.contact-card')
   const [contactWidth, homepageCardWidth] = await Promise.all([
@@ -820,6 +821,17 @@ test('contact form validates locally without sending a message', async ({
   await expect(form.locator('textarea:invalid')).toHaveCount(1)
   await form.getByLabel('Your email').fill('hello@example.com')
   await form.getByLabel('Your message').fill('Hello Stage')
+  await form.locator('[name="companyWebsite"]').evaluate((input) => {
+    ;(input as HTMLInputElement).value = 'https://spam.example'
+  })
+  await form.getByRole('button', { name: 'Send', exact: true }).click()
+  await expect(page.getByText('Thanks for getting in touch.')).toBeVisible()
+  expect(intercepted).toBe(false)
+
+  await page.getByRole('button', { name: 'Send another message' }).click()
+  await form.getByLabel('Your email').fill('hello@example.com')
+  await form.getByLabel('Your message').fill('Hello Stage')
+  await page.waitForTimeout(1500)
   await form.getByRole('button', { name: 'Send', exact: true }).click()
   await expect(page.getByText('Thanks for getting in touch.')).toBeVisible()
   await expect.poll(() => intercepted).toBe(true)
