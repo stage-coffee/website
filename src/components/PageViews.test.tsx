@@ -45,7 +45,7 @@ describe('EventsView', () => {
     )
 
     expect(markup).toContain(
-      'Friday, 4 September 2099<br/>Sunday, 6 September 2099'
+      'Friday, 4 September 2099 to<br/>Sunday, 6 September 2099'
     )
     expect(markup).not.toContain('<br/>18:00')
   })
