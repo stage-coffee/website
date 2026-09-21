@@ -116,7 +116,7 @@ export function HomeSections({
   )
 }
 
-function EventCards({
+export function EventCards({
   events,
   showCalendar = false,
 }: {
@@ -135,11 +135,23 @@ function EventCards({
           <div className="card-copy">
             <h2>{event.name}</h2>
             <time className="event-date" dateTime={event.startTime}>
-              {formatDate(event.startTime, true)}
-              <br />
-              {formatTime(event.startTime)} - {formatTime(event.endTime)}
+              {isMultiDayEvent(event) ? (
+                <>
+                  {formatDate(event.startTime, true)} to
+                  <br />
+                  {formatDate(event.endTime, true)}
+                </>
+              ) : (
+                <>
+                  {formatDate(event.startTime, true)}
+                  <br />
+                  {formatTime(event.startTime)} – {formatTime(event.endTime)}
+                </>
+              )}
             </time>
-            <RichText document={event.description} />
+            <div className="event-description">
+              <RichText document={event.description} />
+            </div>
             <div className="event-card-actions">
               {showCalendar ? <AddToCalendar event={event} /> : null}
               {event.readMoreLink ? (
@@ -152,6 +164,30 @@ function EventCards({
         </article>
       ))}
     </div>
+  )
+}
+
+export function HomeUpcomingEvents({
+  events,
+  href = '/events/',
+}: {
+  events: StageEvent[]
+  href?: string
+}) {
+  if (!events.length) return null
+
+  return (
+    <section className="home-events" aria-labelledby="home-events-heading">
+      <div className="home-events-inner section-shell">
+        <div className="home-events-heading">
+          <h2 id="home-events-heading">Upcoming Events</h2>
+          <a className="home-events-link" href={href}>
+            View all <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <EventCards events={events.slice(0, 2)} showCalendar />
+      </div>
+    </section>
   )
 }
 
@@ -230,6 +266,7 @@ export function JobsBanner({ jobs, href }: { jobs: StageJob[]; href: string }) {
 
 export const formatDate = (date: string, includeWeekday = false) =>
   new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London',
     weekday: includeWeekday ? 'long' : undefined,
     day: 'numeric',
     month: 'long',
@@ -238,6 +275,18 @@ export const formatDate = (date: string, includeWeekday = false) =>
 
 export const formatTime = (date: string) =>
   new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/London',
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(date))
+
+const eventDay = (date: string) =>
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/London',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date(date))
+
+export const isMultiDayEvent = (event: StageEvent) =>
+  eventDay(event.startTime) !== eventDay(event.endTime)

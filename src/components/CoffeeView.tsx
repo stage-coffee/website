@@ -17,7 +17,7 @@ const sections: Array<{
 }> = [
   { id: 'houseEspresso', title: 'Espresso' },
   { id: 'houseBatch', title: 'Batch' },
-  { id: 'filter', title: 'Pour Over' },
+  { id: 'filter', title: 'Pour-over' },
   { id: 'retail', title: 'Retail' },
 ]
 

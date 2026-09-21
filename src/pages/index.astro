@@ -8,7 +8,11 @@ import HomeLocation from '../components/HomeLocation'
 import HomeMenuTiles from '../components/HomeMenuTiles'
 import HomeOpeningHours from '../components/HomeOpeningHours'
 import HomeRetail from '../components/HomeRetail'
-import { HomeSections, JobsBanner } from '../components/PageViews'
+import {
+  HomeSections,
+  HomeUpcomingEvents,
+  JobsBanner,
+} from '../components/PageViews'
 import { getProductionBlogPosts, getProductionContent } from '../lib/contentful'
 
 const [content, blogPosts] = await Promise.all([
@@ -50,6 +54,7 @@ const cafeSchema = {
     <HomeIntroduction />
     <HomeMenuTiles />
     <HomeBlogFeature post={blogPosts[0]} />
+    <HomeUpcomingEvents events={content.events} />
     <HomeOpeningHours />
     <HomeRetail />
     <HomeLocation />

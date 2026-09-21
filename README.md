@@ -50,7 +50,7 @@ Contentful account so changes are attributed to the correct person.
 The admin has two areas:
 
 - **Coffees:** create, edit, publish, remove and restore coffees. Choose every
-  section where a coffee should appear: Espresso, Batch, Pour Over or Retail. A
+  section where a coffee should appear: Espresso, Batch, Pour-over or Retail. A
   coffee can appear in more than one section.
 - **Food menu:** edit the menu introduction and the complete food menu. Change
   its banner image from the Food Menu entry in Contentful when needed.
@@ -129,7 +129,7 @@ published jobs.
 place. Food is the default tab. Coffee opens directly at
 [stagecoffee.com/menu?tab=coffee](https://stagecoffee.com/menu?tab=coffee).
 
-Coffee entries are grouped into Espresso, Batch, Pour Over and Retail. Customers
+Coffee entries are grouped into Espresso, Batch, Pour-over and Retail. Customers
 can expand a coffee to see its origin, process, other facts and prices.
 
 ### Events

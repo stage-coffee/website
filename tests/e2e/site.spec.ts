@@ -542,11 +542,11 @@ test('preview content is gated and excluded from indexing', async ({
   await expect(page.locator('.coffee-group > h2')).toHaveText([
     'Espresso',
     'Batch',
-    'Pour Over',
+    'Pour-over',
     'Retail',
   ])
   const filtersSection = page.locator('.coffee-group').filter({
-    has: page.getByRole('heading', { name: 'Pour Over' }),
+    has: page.getByRole('heading', { name: 'Pour-over' }),
   })
   await expect(filtersSection.locator('.coffee-card-title')).toHaveText([
     'Draft Coffee',

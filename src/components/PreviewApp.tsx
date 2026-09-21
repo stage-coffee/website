@@ -20,7 +20,13 @@ import HomeOpeningHours from './HomeOpeningHours'
 import HomeRetail from './HomeRetail'
 import MenuTabsView from './MenuTabsView'
 import RelatedBlogPosts from './RelatedBlogPosts'
-import { EventsView, HomeSections, JobsBanner, JobsView } from './PageViews'
+import {
+  EventsView,
+  HomeSections,
+  HomeUpcomingEvents,
+  JobsBanner,
+  JobsView,
+} from './PageViews'
 
 type Props = {
   page: 'home' | 'events' | 'jobs' | 'menu' | 'blog'
@@ -171,6 +177,10 @@ export default function PreviewApp(props: Props) {
             <HomeIntroduction />
             <HomeMenuTiles preview />
             <HomeBlogFeature post={blogPosts[0]} preview />
+            <HomeUpcomingEvents
+              events={content.events}
+              href="/preview/events"
+            />
             <HomeOpeningHours />
             <HomeRetail />
             <HomeLocation />

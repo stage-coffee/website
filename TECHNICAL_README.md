@@ -189,7 +189,7 @@ The site preserves the existing Contentful types:
   and staff-editable Markdown menu
 - `coffee`: coffee name, roaster, tasting notes, origin, region,
   altitude, producer, farm, varietal, optional process, caffeine status, and
-  repeatable price options, plus independent Espresso, Batch, Pour Over, and
+  repeatable price options, plus independent Espresso, Batch, Pour-over, and
   Retail section flags
 - `blog`: title, unique slug, optional cover image and published date, short
   introduction, Rich Text article content, and an optional associated Event

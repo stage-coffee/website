@@ -730,7 +730,7 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
                 [
                   ['houseEspresso', 'Espresso'],
                   ['houseBatch', 'Batch'],
-                  ['filter', 'Pour Over'],
+                  ['filter', 'Pour-over'],
                   ['retail', 'Retail'],
                 ] as const
               ).map(([name, label]) => (
@@ -925,7 +925,7 @@ export default function CoffeeAdminApp({ adminUrl }: Props) {
               const sections = [
                 values.houseEspresso && 'Espresso',
                 values.houseBatch && 'Batch',
-                values.filter && 'Pour Over',
+                values.filter && 'Pour-over',
                 values.retail && 'Retail',
               ].filter(Boolean)
               return (
