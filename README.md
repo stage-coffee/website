@@ -129,7 +129,7 @@ published jobs.
 place. Food is the default tab. Coffee opens directly at
 [stagecoffee.com/menu?tab=coffee](https://stagecoffee.com/menu?tab=coffee).
 
-Coffee entries are grouped into Espresso, Batch, Pour Over and Retail. Customers
+Coffee entries are grouped into Espresso, Batch, Pour-over and Retail. Customers
 can expand a coffee to see its origin, process, other facts and prices.
 
 ### Events
