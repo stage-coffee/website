@@ -19,6 +19,7 @@ const [content, blogPosts] = await Promise.all([
   getProductionContent(),
   getProductionBlogPosts(),
 ])
+const homepageBlogPost = blogPosts.find((post) => !post.associatedEvent)
 const description =
   'Independent speciality coffee, events and a warm welcome at Stage Espresso & Brewbar in central Leeds.'
 const cafeSchema = {
@@ -53,7 +54,7 @@ const cafeSchema = {
     <JobsBanner jobs={content.jobs} href="/jobs/" />
     <HomeIntroduction />
     <HomeMenuTiles />
-    <HomeBlogFeature post={blogPosts[0]} />
+    <HomeBlogFeature post={homepageBlogPost} />
     <HomeUpcomingEvents events={content.events} />
     <HomeOpeningHours />
     <HomeRetail />

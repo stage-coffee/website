@@ -162,6 +162,8 @@ export default function PreviewApp(props: Props) {
       </main>
     )
 
+  const homepageBlogPost = blogPosts.find((post) => !post.associatedEvent)
+
   return (
     <>
       <main className={props.page === 'blog' ? 'blog-page' : undefined}>
@@ -176,7 +178,7 @@ export default function PreviewApp(props: Props) {
             <JobsBanner jobs={content.jobs} href="/preview/jobs" />
             <HomeIntroduction />
             <HomeMenuTiles preview />
-            <HomeBlogFeature post={blogPosts[0]} preview />
+            <HomeBlogFeature post={homepageBlogPost} preview />
             <HomeUpcomingEvents
               events={content.events}
               href="/preview/events"
