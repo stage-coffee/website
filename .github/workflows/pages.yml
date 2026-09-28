@@ -5,6 +5,9 @@ on:
     branches: [main]
   repository_dispatch:
     types: [contentful-publish]
+  schedule:
+    - cron: '17 4 * * *'
+      timezone: Europe/London
   workflow_dispatch:
   pull_request:
 

@@ -4,6 +4,7 @@ import {
   fetchBlogPosts,
   fetchSiteContent,
   filterCurrentEvents,
+  filterPastEvents,
   getBlogDisplayDate,
   getRelatedBlogPosts,
   isValidBlogSlug,
@@ -96,6 +97,21 @@ describe('filterCurrentEvents', () => {
       now
     )
     expect(result.map(({ id }) => id)).toEqual(['ongoing', 'future'])
+  })
+
+  it('keeps an event current through its end time, then moves it to past events', () => {
+    const endingEvent = event(
+      'ending',
+      '2026-09-03T10:00:00Z',
+      '2026-09-03T12:00:00Z'
+    )
+    const atEndTime = new Date('2026-09-03T12:00:00Z')
+    const afterEndTime = new Date('2026-09-03T12:00:00.001Z')
+
+    expect(filterCurrentEvents([endingEvent], atEndTime)).toEqual([endingEvent])
+    expect(filterPastEvents([endingEvent], atEndTime)).toEqual([])
+    expect(filterCurrentEvents([endingEvent], afterEndTime)).toEqual([])
+    expect(filterPastEvents([endingEvent], afterEndTime)).toEqual([endingEvent])
   })
 })
 

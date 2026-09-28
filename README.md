@@ -149,7 +149,9 @@ events, supporting Google Calendar, Apple Calendar, Outlook and other calendar
 apps.
 
 Events remain upcoming until their end time has passed. Use accurate start and
-end times so they move into Past Events at the right time.
+end times so they move into Past Events at the right time. Publishing Contentful
+changes refreshes the site immediately, and a daily early-morning rebuild keeps
+event categories current when no content has changed.
 
 ### Blog
 

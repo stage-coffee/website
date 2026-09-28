@@ -149,8 +149,11 @@ Configure these repository secrets:
 - `PREVIEW_PASSWORD_HASH`
 
 The workflow in `.github/workflows/pages.yml` validates pull requests and deploys
-`main`, manual runs, and `contentful-publish` repository dispatches. Deployment
-concurrency prevents an older build from replacing a newer content update.
+`main`, manual runs, `contentful-publish` repository dispatches, and a daily
+04:17 `Europe/London` schedule. The scheduled deployment re-evaluates event end
+times so finished events move from Upcoming to Past even when Contentful has not
+changed. Deployment concurrency prevents an older build from replacing a newer
+content update.
 
 ## Contentful publishing webhook
 
