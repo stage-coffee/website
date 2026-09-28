@@ -69,4 +69,26 @@ describe('EventsView', () => {
     expect(markup).not.toContain('Third event')
     expect(markup).toContain('href="/events/"')
   })
+
+  it('uses the wide desktop layout for a single upcoming event', () => {
+    const upcomingEvent = {
+      id: 'only-event',
+      name: 'The only upcoming event',
+      description: null,
+      image: null,
+      startTime: '2099-09-04T18:00:00+01:00',
+      endTime: '2099-09-04T20:00:00+01:00',
+      readMoreLink: '',
+    }
+
+    const homeMarkup = renderToStaticMarkup(
+      <HomeUpcomingEvents events={[upcomingEvent]} />
+    )
+    const eventsMarkup = renderToStaticMarkup(
+      <EventsView events={[upcomingEvent]} />
+    )
+
+    expect(homeMarkup).toContain('event-card event-card-wide')
+    expect(eventsMarkup).toContain('event-card event-card-wide')
+  })
 })

@@ -119,14 +119,23 @@ export function HomeSections({
 export function EventCards({
   events,
   showCalendar = false,
+  wideWhenSingle = false,
 }: {
   events: StageEvent[]
   showCalendar?: boolean
+  wideWhenSingle?: boolean
 }) {
   return (
     <div className="card-grid">
       {events.map((event) => (
-        <article className="event-card" key={event.id}>
+        <article
+          className={
+            wideWhenSingle && events.length === 1
+              ? 'event-card event-card-wide'
+              : 'event-card'
+          }
+          key={event.id}
+        >
           {event.image ? (
             <div className="card-media">
               <EditorialImage image={event.image} />
@@ -185,7 +194,7 @@ export function HomeUpcomingEvents({
             View all <span aria-hidden="true">→</span>
           </a>
         </div>
-        <EventCards events={events.slice(0, 2)} showCalendar />
+        <EventCards events={events.slice(0, 2)} showCalendar wideWhenSingle />
       </div>
     </section>
   )
@@ -203,7 +212,7 @@ export function EventsView({
       <section className="events-group" aria-labelledby="upcoming-events">
         <h2 id="upcoming-events">Upcoming Events</h2>
         {events.length ? (
-          <EventCards events={events} showCalendar />
+          <EventCards events={events} showCalendar wideWhenSingle />
         ) : (
           <div className="empty-state">
             <h3>No upcoming events</h3>

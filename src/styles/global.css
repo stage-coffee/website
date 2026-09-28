@@ -287,6 +287,9 @@ p {
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
+.home-hours-list time {
+  white-space: nowrap;
+}
 .home-hours-media {
   aspect-ratio: 16 / 10;
   overflow: hidden;
@@ -989,36 +992,46 @@ p {
   border-radius: var(--radius);
   background: var(--paper);
 }
-.event-card:nth-child(3n) {
+.event-card:nth-child(3n),
+.event-card-wide {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 24rem;
   max-height: 32rem;
 }
-.event-card:nth-child(3n) .card-media {
+.event-card:nth-child(3n) .card-media,
+.event-card-wide .card-media {
   position: relative;
   min-height: 24rem;
   aspect-ratio: auto;
 }
-.event-card:nth-child(3n) .card-media img {
+.event-card:nth-child(3n) .card-media img,
+.event-card-wide .card-media img {
   position: absolute;
   inset: 0;
 }
-.event-card:nth-child(3n) .card-copy {
+.event-card:nth-child(3n) .card-copy,
+.event-card-wide .card-copy {
   min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
-.event-card:nth-child(3n) .event-description {
+.event-card:nth-child(3n) > .card-copy:only-child,
+.event-card-wide > .card-copy:only-child {
+  grid-column: 1 / -1;
+}
+.event-card:nth-child(3n) .event-description,
+.event-card-wide .event-description {
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 7;
   line-clamp: 7;
 }
-.event-card:nth-child(3n) .event-card-actions {
+.event-card:nth-child(3n) .event-card-actions,
+.event-card-wide .event-card-actions {
   margin-top: auto;
   padding-top: 1.25rem;
 }
@@ -2051,27 +2064,32 @@ p {
   .card-grid {
     grid-template-columns: 1fr;
   }
-  .event-card:nth-child(3n) {
+  .event-card:nth-child(3n),
+  .event-card-wide {
     grid-column: auto;
     display: block;
     min-height: 0;
     max-height: none;
   }
-  .event-card:nth-child(3n) .card-media {
+  .event-card:nth-child(3n) .card-media,
+  .event-card-wide .card-media {
     position: static;
     min-height: 0;
     aspect-ratio: 16 / 10;
   }
-  .event-card:nth-child(3n) .card-media img {
+  .event-card:nth-child(3n) .card-media img,
+  .event-card-wide .card-media img {
     position: static;
   }
-  .event-card:nth-child(3n) .event-description {
+  .event-card:nth-child(3n) .event-description,
+  .event-card-wide .event-description {
     display: block;
     overflow: visible;
     -webkit-line-clamp: unset;
     line-clamp: unset;
   }
-  .event-card:nth-child(3n) .event-card-actions {
+  .event-card:nth-child(3n) .event-card-actions,
+  .event-card-wide .event-card-actions {
     margin-top: 1.25rem;
     padding-top: 0;
   }
