@@ -1,0 +1,21 @@
+name: Dependency security audit
+
+on:
+  pull_request:
+  schedule:
+    - cron: '30 0 * * *'
+      timezone: Europe/London
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm audit --package-lock-only --audit-level=high
