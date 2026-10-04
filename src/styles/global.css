@@ -935,7 +935,8 @@ p {
   border-bottom: 1px solid var(--line);
   text-decoration: none;
 }
-.event-teaser time {
+.event-teaser time,
+.event-teaser-date {
   color: var(--blue-dark);
   font-weight: 700;
 }

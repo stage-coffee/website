@@ -1,8 +1,9 @@
-import type {
-  ImageAsset,
-  HomeSection,
-  StageEvent,
-  StageJob,
+import {
+  hasScheduledDate,
+  type ImageAsset,
+  type HomeSection,
+  type StageEvent,
+  type StageJob,
 } from '../lib/contentful'
 import AddToCalendar from './AddToCalendar'
 import RichText from './RichText'
@@ -43,9 +44,13 @@ export function UpcomingEvents({
     <div className="event-teasers">
       {events.slice(0, 3).map((event) => (
         <a href={href} className="event-teaser" key={event.id}>
-          <time dateTime={event.startTime}>
-            {formatDate(event.startTime, true)}
-          </time>
+          {hasScheduledDate(event) ? (
+            <time dateTime={event.startTime}>
+              {formatDate(event.startTime, true)}
+            </time>
+          ) : (
+            <span className="event-teaser-date">Date TBC</span>
+          )}
           <span>{event.name}</span>
         </a>
       ))}
@@ -143,26 +148,32 @@ export function EventCards({
           ) : null}
           <div className="card-copy">
             <h2>{event.name}</h2>
-            <time className="event-date" dateTime={event.startTime}>
-              {isMultiDayEvent(event) ? (
-                <>
-                  {formatDate(event.startTime, true)} to
-                  <br />
-                  {formatDate(event.endTime, true)}
-                </>
-              ) : (
-                <>
-                  {formatDate(event.startTime, true)}
-                  <br />
-                  {formatTime(event.startTime)} – {formatTime(event.endTime)}
-                </>
-              )}
-            </time>
+            {hasScheduledDate(event) ? (
+              <time className="event-date" dateTime={event.startTime}>
+                {isMultiDayEvent(event) ? (
+                  <>
+                    {formatDate(event.startTime, true)} to
+                    <br />
+                    {formatDate(event.endTime, true)}
+                  </>
+                ) : (
+                  <>
+                    {formatDate(event.startTime, true)}
+                    <br />
+                    {formatTime(event.startTime)} – {formatTime(event.endTime)}
+                  </>
+                )}
+              </time>
+            ) : (
+              <p className="event-date">Date TBC</p>
+            )}
             <div className="event-description">
               <RichText document={event.description} />
             </div>
             <div className="event-card-actions">
-              {showCalendar ? <AddToCalendar event={event} /> : null}
+              {showCalendar && hasScheduledDate(event) ? (
+                <AddToCalendar event={event} />
+              ) : null}
               {event.readMoreLink ? (
                 <a className="event-read-more" href={event.readMoreLink}>
                   Read more <span aria-hidden="true">→</span>

@@ -281,6 +281,9 @@ const blogPostFrom = (entry: RawRecord, index = 0): BlogPost => {
 const validDateValue = (value: string) =>
   value && Number.isFinite(new Date(value).getTime()) ? value : ''
 
+export const hasScheduledDate = (event: StageEvent) =>
+  Boolean(validDateValue(event.startTime))
+
 export const getBlogDisplayDate = (post: BlogPost) =>
   validDateValue(post.publishedDate) ||
   validDateValue(post.firstPublishedAt) ||
@@ -337,14 +340,19 @@ export const filterCurrentEvents = (
 ): StageEvent[] =>
   [...events]
     .filter((event) => {
-      const finalTime = new Date(event.endTime || event.startTime).getTime()
-      return Number.isFinite(finalTime) && finalTime >= now.getTime()
+      const finalDate =
+        validDateValue(event.endTime) || validDateValue(event.startTime)
+      return !finalDate || new Date(finalDate).getTime() >= now.getTime()
     })
-    .sort(
-      (first, second) =>
-        new Date(first.startTime).getTime() -
-        new Date(second.startTime).getTime()
-    )
+    .sort((first, second) => {
+      const firstTime = hasScheduledDate(first)
+        ? new Date(first.startTime).getTime()
+        : Number.POSITIVE_INFINITY
+      const secondTime = hasScheduledDate(second)
+        ? new Date(second.startTime).getTime()
+        : Number.POSITIVE_INFINITY
+      return firstTime - secondTime
+    })
 
 export const filterPastEvents = (
   events: StageEvent[],
@@ -352,8 +360,9 @@ export const filterPastEvents = (
 ): StageEvent[] =>
   [...events]
     .filter((event) => {
-      const finalTime = new Date(event.endTime || event.startTime).getTime()
-      return Number.isFinite(finalTime) && finalTime < now.getTime()
+      const finalDate =
+        validDateValue(event.endTime) || validDateValue(event.startTime)
+      return Boolean(finalDate) && new Date(finalDate).getTime() < now.getTime()
     })
     .sort(
       (first, second) =>

@@ -1,24 +1,26 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import { EventsView } from '../../components/PageViews'
-import { getProductionContent } from '../../lib/contentful'
+import { getProductionContent, hasScheduledDate } from '../../lib/contentful'
 
 const content = await getProductionContent()
 const description =
   'Open mic nights, live music, games and community events at Stage Espresso & Brewbar in Leeds.'
-const schemas = [...content.events, ...content.pastEvents].map((event) => ({
-  '@context': 'https://schema.org',
-  '@type': 'Event',
-  name: event.name,
-  startDate: event.startTime,
-  endDate: event.endTime,
-  image: event.image?.url,
-  location: {
-    '@type': 'Place',
-    name: 'Stage Espresso & Brewbar',
-    address: '41 Great George Street, Leeds, LS1 3BB',
-  },
-}))
+const schemas = [...content.events, ...content.pastEvents]
+  .filter(hasScheduledDate)
+  .map((event) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: event.name,
+    startDate: event.startTime,
+    endDate: event.endTime,
+    image: event.image?.url,
+    location: {
+      '@type': 'Place',
+      name: 'Stage Espresso & Brewbar',
+      address: '41 Great George Street, Leeds, LS1 3BB',
+    },
+  }))
 ---
 
 <BaseLayout

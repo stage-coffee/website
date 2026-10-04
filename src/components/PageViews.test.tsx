@@ -50,6 +50,28 @@ describe('EventsView', () => {
     expect(markup).not.toContain('<br/>18:00')
   })
 
+  it('shows Date TBC and no calendar action for an undated event', () => {
+    const markup = renderToStaticMarkup(
+      <EventsView
+        events={[
+          {
+            id: 'undated-event',
+            name: 'Coming soon',
+            description: null,
+            image: null,
+            startTime: '',
+            endTime: '',
+            readMoreLink: '',
+          },
+        ]}
+      />
+    )
+
+    expect(markup).toContain('<p class="event-date">Date TBC</p>')
+    expect(markup).not.toContain('Add to Calendar')
+    expect(markup).not.toContain('<time')
+  })
+
   it('shows only the next two events on the home page', () => {
     const events = ['First event', 'Second event', 'Third event'].map(
       (name, index) => ({

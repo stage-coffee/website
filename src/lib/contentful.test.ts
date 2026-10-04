@@ -113,6 +113,24 @@ describe('filterCurrentEvents', () => {
     expect(filterCurrentEvents([endingEvent], afterEndTime)).toEqual([])
     expect(filterPastEvents([endingEvent], afterEndTime)).toEqual([endingEvent])
   })
+
+  it('keeps undated events upcoming and sorts them after dated events', () => {
+    const undatedFirst = event('undated-first', '', '')
+    const undatedSecond = event('undated-second', '', '')
+    const future = event(
+      'future',
+      '2026-09-04T18:00:00Z',
+      '2026-09-04T20:00:00Z'
+    )
+    const now = new Date('2026-09-03T12:00:00Z')
+
+    expect(
+      filterCurrentEvents([undatedFirst, future, undatedSecond], now).map(
+        ({ id }) => id
+      )
+    ).toEqual(['future', 'undated-first', 'undated-second'])
+    expect(filterPastEvents([undatedFirst, undatedSecond], now)).toEqual([])
+  })
 })
 
 describe('resolveCollection', () => {
