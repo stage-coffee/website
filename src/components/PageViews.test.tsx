@@ -113,4 +113,24 @@ describe('EventsView', () => {
     expect(homeMarkup).toContain('event-card event-card-wide')
     expect(eventsMarkup).toContain('event-card event-card-wide')
   })
+
+  it('uses the wide layout when the final event would be alone in a row', () => {
+    const events = ['First', 'Second', 'Third', 'Fourth'].map(
+      (name, index) => ({
+        id: String(index),
+        name,
+        description: null,
+        image: null,
+        startTime: `2099-09-0${index + 4}T18:00:00+01:00`,
+        endTime: `2099-09-0${index + 4}T20:00:00+01:00`,
+        readMoreLink: '',
+      })
+    )
+
+    const markup = renderToStaticMarkup(<EventsView events={events} />)
+
+    expect(markup).toContain(
+      '<article class="event-card event-card-wide"><div class="card-copy"><h2>Fourth</h2>'
+    )
+  })
 })

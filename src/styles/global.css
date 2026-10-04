@@ -988,6 +988,8 @@ p {
   gap: clamp(1.5rem, 4vw, 3rem);
 }
 .event-card {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1046,6 +1048,9 @@ p {
   object-fit: cover;
 }
 .card-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   padding: clamp(1.4rem, 4vw, 2.5rem);
 }
 .card-copy h2 {
@@ -1081,7 +1086,8 @@ p {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-top: 1.25rem;
+  margin-top: auto;
+  padding-top: 1.25rem;
 }
 .home-events {
   padding-block: clamp(0.75rem, 2vw, 1.5rem);
@@ -1122,11 +1128,13 @@ p {
   color: var(--blue-dark);
 }
 .event-calendar-options[popover] {
-  width: min(calc(100% - 2rem), 25rem);
+  width: min(calc(100vw - 2rem), 25rem);
+  height: fit-content;
   max-height: calc(100dvh - 2rem);
   padding: 1.25rem;
   margin: auto;
   overflow: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--paper);
@@ -1138,6 +1146,8 @@ p {
 }
 .event-calendar-options[popover]:popover-open {
   display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
   gap: 1rem;
 }
 .event-calendar-options::backdrop {
@@ -2091,8 +2101,8 @@ p {
   }
   .event-card:nth-child(3n) .event-card-actions,
   .event-card-wide .event-card-actions {
-    margin-top: 1.25rem;
-    padding-top: 0;
+    margin-top: auto;
+    padding-top: 1.25rem;
   }
   .footer-bar-inner {
     display: block;
@@ -2121,6 +2131,11 @@ p {
 }
 
 @media (max-width: 32rem) {
+  .event-calendar-options[popover] {
+    width: calc(100vw - 1.5rem);
+    max-height: calc(100dvh - 1.5rem);
+    padding: 1rem;
+  }
   .nav-social {
     padding: 0.25rem 0.65rem;
   }

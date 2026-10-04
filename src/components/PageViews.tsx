@@ -132,10 +132,11 @@ export function EventCards({
 }) {
   return (
     <div className="card-grid">
-      {events.map((event) => (
+      {events.map((event, index) => (
         <article
           className={
-            wideWhenSingle && events.length === 1
+            (wideWhenSingle && events.length === 1) ||
+            (index === events.length - 1 && events.length % 3 === 1)
               ? 'event-card event-card-wide'
               : 'event-card'
           }
