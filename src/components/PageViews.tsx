@@ -48,9 +48,7 @@ export function UpcomingEvents({
             <time dateTime={event.startTime}>
               {formatDate(event.startTime, true)}
             </time>
-          ) : (
-            <span className="event-teaser-date">Date TBC</span>
-          )}
+          ) : null}
           <span>{event.name}</span>
         </a>
       ))}
@@ -125,18 +123,21 @@ export function EventCards({
   events,
   showCalendar = false,
   wideWhenSingle = false,
+  vertical = false,
 }: {
   events: StageEvent[]
   showCalendar?: boolean
   wideWhenSingle?: boolean
+  vertical?: boolean
 }) {
   return (
-    <div className="card-grid">
+    <div className={`card-grid${vertical ? ' card-grid-vertical' : ''}`}>
       {events.map((event, index) => (
         <article
           className={
-            (wideWhenSingle && events.length === 1) ||
-            (index === events.length - 1 && events.length % 3 === 1)
+            !vertical &&
+            ((wideWhenSingle && events.length === 1) ||
+              (index === events.length - 1 && events.length % 3 === 1))
               ? 'event-card event-card-wide'
               : 'event-card'
           }
@@ -165,9 +166,7 @@ export function EventCards({
                   </>
                 )}
               </time>
-            ) : (
-              <p className="event-date">Date TBC</p>
-            )}
+            ) : null}
             <div className="event-description">
               <RichText document={event.description} />
             </div>
@@ -224,7 +223,7 @@ export function EventsView({
       <section className="events-group" aria-labelledby="upcoming-events">
         <h2 id="upcoming-events">Upcoming Events</h2>
         {events.length ? (
-          <EventCards events={events} showCalendar wideWhenSingle />
+          <EventCards events={events} showCalendar vertical />
         ) : (
           <div className="empty-state">
             <h3>No upcoming events</h3>
@@ -235,7 +234,7 @@ export function EventsView({
       <section className="events-group" aria-labelledby="past-events">
         <h2 id="past-events">Past Events</h2>
         {pastEvents.length ? (
-          <EventCards events={pastEvents} />
+          <EventCards events={pastEvents} vertical />
         ) : (
           <div className="empty-state">
             <p>There are no past events to show yet.</p>

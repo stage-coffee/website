@@ -64,7 +64,7 @@ export default function HomeFeatureCards({
                 <img
                   src={imageUrl(image, 960)}
                   srcSet={`${imageUrl(image, 480)} 480w, ${imageUrl(image, 960)} 960w, ${imageUrl(image, 1440)} 1440w`}
-                  sizes="(min-width: 64rem) 52vw, calc(100vw - 2rem)"
+                  sizes="(min-width: 48.0625rem) 52vw, calc(100vw - 2rem)"
                   width={image.width}
                   height={image.height}
                   alt={imageAlt}

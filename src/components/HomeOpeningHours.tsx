@@ -33,7 +33,7 @@ export default function HomeOpeningHours() {
           <img
             src={imageUrl(960)}
             srcSet={`${imageUrl(480)} 480w, ${imageUrl(960)} 960w, ${imageUrl(1440)} 1440w`}
-            sizes="(min-width: 64rem) 45vw, calc(100vw - 2rem)"
+            sizes="(min-width: 48.0625rem) 45vw, calc(100vw - 2rem)"
             width="1327"
             height="870"
             alt="Coffee being served at Stage"

@@ -467,7 +467,7 @@ p {
   outline-offset: -5px;
 }
 
-@media (min-width: 64rem) {
+@media (min-width: 48.0625rem) {
   .hero {
     min-height: 24rem;
   }
@@ -943,6 +943,9 @@ p {
 .event-teaser span {
   font-weight: 700;
 }
+.event-teaser > span:only-child {
+  grid-column: 1 / -1;
+}
 .text-link {
   display: inline-block;
   margin-top: 1.5rem;
@@ -1037,6 +1040,30 @@ p {
 .event-card-wide .event-card-actions {
   margin-top: auto;
   padding-top: 1.25rem;
+}
+.card-grid-vertical .event-card {
+  grid-column: auto;
+  display: flex;
+  min-height: 0;
+  max-height: none;
+}
+.card-grid-vertical .event-card .card-media {
+  position: static;
+  min-height: 0;
+  aspect-ratio: 16 / 10;
+}
+.card-grid-vertical .event-card .card-media img {
+  position: static;
+}
+.card-grid-vertical .event-card .card-copy {
+  min-height: auto;
+  overflow: visible;
+}
+.card-grid-vertical .event-card .event-description {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
 }
 .card-media {
   aspect-ratio: 16 / 10;

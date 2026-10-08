@@ -12,10 +12,80 @@ permissions:
 
 jobs:
   audit:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+          cache: npm
       - run: npm audit --package-lock-only --audit-level=high
+
+  repair:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Check dependency audit
+        id: audit
+        continue-on-error: true
+        run: npm audit --package-lock-only --audit-level=high
+      - name: Apply compatible security updates
+        if: steps.audit.outcome == 'failure'
+        run: npm audit fix --package-lock-only
+      - name: Verify dependency audit
+        if: steps.audit.outcome == 'failure'
+        run: npm audit --package-lock-only --audit-level=high
+      - name: Install repaired dependencies
+        if: steps.audit.outcome == 'failure'
+        run: npm ci
+      - name: Validate repaired dependencies
+        if: steps.audit.outcome == 'failure'
+        run: |
+          npm run format:check
+          npm run check
+          npm test
+      - name: Create, update, and merge security-fix pull request
+        if: steps.audit.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch=automation/dependency-security-fixes
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git checkout -B "$branch"
+          git add package-lock.json
+
+          if git diff --cached --quiet; then
+            echo "The audit failed, but npm did not produce a lockfile fix."
+            exit 1
+          fi
+
+          git commit -m "Apply dependency security fixes"
+          git push --force origin "$branch"
+
+          pr_url=$(gh pr list --base main --head "$branch" --state open --json url --jq '.[0].url')
+
+          if [ -z "$pr_url" ]; then
+            pr_url=$(gh pr create \
+              --base main \
+              --head "$branch" \
+              --title "Apply dependency security fixes" \
+              --body "Automated lockfile-only security updates generated after the scheduled dependency audit failed. The repaired dependency tree passed the full audit, formatting check, Astro check, and test suite.")
+          fi
+
+          gh pr merge "$pr_url" \
+            --squash \
+            --delete-branch \
+            --match-head-commit "$(git rev-parse HEAD)"
+
+          gh workflow run pages.yml --ref main

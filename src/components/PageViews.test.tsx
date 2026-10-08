@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { EventsView, HomeUpcomingEvents } from './PageViews'
+import { EventsView, HomeUpcomingEvents, UpcomingEvents } from './PageViews'
 
 describe('EventsView', () => {
   it('shows the event time with its date', () => {
@@ -50,7 +50,7 @@ describe('EventsView', () => {
     expect(markup).not.toContain('<br/>18:00')
   })
 
-  it('shows Date TBC and no calendar action for an undated event', () => {
+  it('omits the date and calendar action for an undated event', () => {
     const markup = renderToStaticMarkup(
       <EventsView
         events={[
@@ -67,7 +67,8 @@ describe('EventsView', () => {
       />
     )
 
-    expect(markup).toContain('<p class="event-date">Date TBC</p>')
+    expect(markup).not.toContain('Date TBC')
+    expect(markup).not.toContain('event-date')
     expect(markup).not.toContain('Add to Calendar')
     expect(markup).not.toContain('<time')
   })
@@ -92,7 +93,7 @@ describe('EventsView', () => {
     expect(markup).toContain('href="/events/"')
   })
 
-  it('uses the wide desktop layout for a single upcoming event', () => {
+  it('uses the wide layout only for a single home-page event', () => {
     const upcomingEvent = {
       id: 'only-event',
       name: 'The only upcoming event',
@@ -111,10 +112,10 @@ describe('EventsView', () => {
     )
 
     expect(homeMarkup).toContain('event-card event-card-wide')
-    expect(eventsMarkup).toContain('event-card event-card-wide')
+    expect(eventsMarkup).not.toContain('event-card event-card-wide')
   })
 
-  it('uses the wide layout when the final event would be alone in a row', () => {
+  it('keeps every events-page card in the vertical layout', () => {
     const events = ['First', 'Second', 'Third', 'Fourth'].map(
       (name, index) => ({
         id: String(index),
@@ -127,10 +128,36 @@ describe('EventsView', () => {
       })
     )
 
-    const markup = renderToStaticMarkup(<EventsView events={events} />)
-
-    expect(markup).toContain(
-      '<article class="event-card event-card-wide"><div class="card-copy"><h2>Fourth</h2>'
+    const markup = renderToStaticMarkup(
+      <EventsView events={events} pastEvents={events} />
     )
+
+    expect(markup).not.toContain('event-card event-card-wide')
+    expect(markup.match(/card-grid card-grid-vertical/g)).toHaveLength(2)
+    expect(markup.match(/<article class="event-card">/g)).toHaveLength(8)
+  })
+})
+
+describe('UpcomingEvents', () => {
+  it('omits the date for an undated event teaser', () => {
+    const markup = renderToStaticMarkup(
+      <UpcomingEvents
+        events={[
+          {
+            id: 'undated-event',
+            name: 'Coming soon',
+            description: null,
+            image: null,
+            startTime: '',
+            endTime: '',
+            readMoreLink: '',
+          },
+        ]}
+      />
+    )
+
+    expect(markup).toContain('<span>Coming soon</span>')
+    expect(markup).not.toContain('Date TBC')
+    expect(markup).not.toContain('<time')
   })
 })

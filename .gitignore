@@ -15,6 +15,7 @@
 /.astro
 /test-results
 /playwright-report
+/tmp
 
 # misc
 .DS_Store

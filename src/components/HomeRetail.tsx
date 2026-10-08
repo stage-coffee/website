@@ -24,7 +24,7 @@ export default function HomeRetail() {
           <img
             src={imageUrl(960)}
             srcSet={`${imageUrl(480)} 480w, ${imageUrl(960)} 960w, ${imageUrl(1440)} 1440w`}
-            sizes="(min-width: 64rem) 52vw, calc(100vw - 2rem)"
+            sizes="(min-width: 48.0625rem) 52vw, calc(100vw - 2rem)"
             width="593"
             height="588"
             alt="Coffee and brewing equipment on the retail shelves at Stage"
