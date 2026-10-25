@@ -35,13 +35,16 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      # npm 10 crashes while resolving this project's optional peer dependencies.
+      - name: Use the verified npm security-repair version
+        run: npm install --global npm@11.19.0
       - name: Check dependency audit
         id: audit
         continue-on-error: true
         run: npm audit --package-lock-only --audit-level=high
       - name: Apply compatible security updates
         if: steps.audit.outcome == 'failure'
-        run: npm audit fix --package-lock-only
+        run: npm audit fix --package-lock-only --audit-level=high
       - name: Verify dependency audit
         if: steps.audit.outcome == 'failure'
         run: npm audit --package-lock-only --audit-level=high
