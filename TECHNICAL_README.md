@@ -17,7 +17,7 @@ routes. password: soupswimsale
 
 ## Requirements
 
-- Node.js 22.12 or newer (`.nvmrc` is included)
+- Node.js 22.23.4 or newer (`.nvmrc` is included)
 - Access to the Stage Contentful space for real content
 
 ## Local development
